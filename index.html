@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BankEase – Smart Banking for Everyone</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--primary:#6366f1;--dark:#4f46e5;--darker:#1e1b4b;--light:#eef2ff;--white:#fff;--gray:#6b7280;--text:#1f2937}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;color:var(--text);overflow-x:hidden}
+  /* Navbar */
+  nav{position:fixed;top:0;width:100%;z-index:1000;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);border-bottom:1px solid rgba(99,102,241,0.1);padding:0 5%;height:68px;display:flex;align-items:center;justify-content:space-between;transition:box-shadow .3s}
+  nav.scrolled{box-shadow:0 4px 24px rgba(99,102,241,0.12)}
+  .nav-logo{display:flex;align-items:center;gap:10px;font-size:1.4rem;font-weight:800;color:var(--darker);text-decoration:none}
+  .nav-logo span{background:linear-gradient(135deg,var(--primary),var(--dark));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .nav-logo .logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--primary),var(--dark));border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:1.1rem}
+  .nav-links{display:flex;gap:32px;list-style:none}
+  .nav-links a{text-decoration:none;color:var(--gray);font-weight:500;font-size:.95rem;transition:color .2s}
+  .nav-links a:hover{color:var(--primary)}
+  .nav-cta{display:flex;gap:12px}
+  .btn{padding:10px 22px;border-radius:10px;font-weight:600;font-size:.9rem;cursor:pointer;border:none;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+  .btn-outline{border:2px solid var(--primary);color:var(--primary);background:transparent}
+  .btn-outline:hover{background:var(--primary);color:#fff}
+  .btn-primary{background:linear-gradient(135deg,var(--primary),var(--dark));color:#fff;box-shadow:0 4px 15px rgba(99,102,241,0.4)}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(99,102,241,0.5)}
+  /* Hero */
+  #hero{position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;overflow:hidden;background:linear-gradient(135deg,#0f0c29,#302b63,#24243e)}
+  #particle-canvas{position:absolute;inset:0;width:100%;height:100%}
+  .hero-content{position:relative;z-index:2;text-align:center;padding:80px 20px 40px;max-width:900px}
+  .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(99,102,241,0.2);border:1px solid rgba(99,102,241,0.4);border-radius:50px;padding:6px 16px;margin-bottom:28px;color:#a5b4fc;font-size:.85rem;font-weight:500}
+  .hero-badge span{width:8px;height:8px;border-radius:50%;background:#6ee7b7;box-shadow:0 0 8px #6ee7b7;animation:pulse 2s infinite}
+  .hero-title{font-size:clamp(2.4rem,6vw,4.2rem);font-weight:900;color:#fff;line-height:1.12;margin-bottom:22px;letter-spacing:-1px}
+  .hero-title .typed-cursor{color:var(--primary);border-right:3px solid var(--primary);animation:blink .7s infinite}
+  .hero-title .highlight{background:linear-gradient(135deg,#a5b4fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .hero-sub{font-size:1.15rem;color:rgba(255,255,255,0.7);max-width:580px;margin:0 auto 40px;line-height:1.7}
+  .hero-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+  .btn-hero-primary{background:linear-gradient(135deg,var(--primary),var(--dark));color:#fff;padding:16px 36px;font-size:1rem;border-radius:14px;box-shadow:0 0 30px rgba(99,102,241,0.5)}
+  .btn-hero-primary:hover{transform:translateY(-3px);box-shadow:0 0 50px rgba(99,102,241,0.7)}
+  .btn-hero-outline{background:rgba(255,255,255,0.08);border:2px solid rgba(255,255,255,0.25);color:#fff;padding:14px 32px;font-size:1rem;border-radius:14px;backdrop-filter:blur(4px)}
+  .btn-hero-outline:hover{background:rgba(255,255,255,0.15)}
+  .hero-stats{display:flex;gap:40px;justify-content:center;margin-top:56px;flex-wrap:wrap}
+  .hero-stat{text-align:center}
+  .hero-stat .num{font-size:2rem;font-weight:800;color:#fff}
+  .hero-stat .lbl{font-size:.8rem;color:rgba(255,255,255,0.5);margin-top:2px;letter-spacing:1px;text-transform:uppercase}
+  /* Scroll reveal */
+  .reveal{opacity:0;transform:translateY(40px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.visible{opacity:1;transform:none}
+  /* Sections */
+  section{padding:96px 5%}
+  .section-label{font-size:.8rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:12px}
+  .section-title{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;color:var(--darker);line-height:1.2;margin-bottom:16px}
+  .section-sub{font-size:1rem;color:var(--gray);max-width:560px;line-height:1.7}
+  /* Features */
+  #features{background:#fff}
+  .features-header{text-align:center;margin-bottom:64px}
+  .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:28px;max-width:1200px;margin:0 auto}
+  .feature-card{background:#fff;border:1.5px solid rgba(99,102,241,0.12);border-radius:20px;padding:36px 32px;transition:all .3s;cursor:default;position:relative;overflow:hidden}
+  .feature-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(99,102,241,0.04),transparent);opacity:0;transition:.3s}
+  .feature-card:hover{transform:translateY(-8px);box-shadow:0 24px 56px rgba(99,102,241,0.15);border-color:rgba(99,102,241,0.3)}
+  .feature-card:hover::before{opacity:1}
+  .feature-icon{width:56px;height:56px;background:linear-gradient(135deg,var(--light),#ddd6fe);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:22px}
+  .feature-title{font-size:1.15rem;font-weight:700;color:var(--darker);margin-bottom:10px}
+  .feature-desc{font-size:.93rem;color:var(--gray);line-height:1.65}
+  /* Stats */
+  #stats{background:linear-gradient(135deg,var(--darker),var(--dark));color:#fff}
+  .stats-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:40px;text-align:center}
+  .stat-box .count{font-size:3rem;font-weight:900;background:linear-gradient(135deg,#a5b4fc,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+  .stat-box .stat-title{font-size:.95rem;color:rgba(255,255,255,0.65);margin-top:6px;letter-spacing:.5px}
+  /* How it works */
+  #how{background:var(--light)}
+  .how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:28px;max-width:1100px;margin:48px auto 0}
+  .how-step{background:#fff;border-radius:20px;padding:36px 28px;text-align:center;box-shadow:0 4px 20px rgba(99,102,241,0.08)}
+  .step-num{width:48px;height:48px;background:linear-gradient(135deg,var(--primary),var(--dark));border-radius:14px;color:#fff;font-weight:800;font-size:1.2rem;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+  .how-step h3{font-size:1.05rem;font-weight:700;color:var(--darker);margin-bottom:10px}
+  .how-step p{font-size:.9rem;color:var(--gray);line-height:1.6}
+  /* CTA */
+  #cta{background:linear-gradient(135deg,#1e1b4b,#312e81,#4338ca);text-align:center;padding:96px 5%}
+  #cta h2{font-size:clamp(1.8rem,4vw,3rem);font-weight:900;color:#fff;margin-bottom:16px}
+  #cta p{font-size:1.05rem;color:rgba(255,255,255,.7);margin-bottom:36px}
+  /* Footer */
+  footer{background:#0f0c29;color:rgba(255,255,255,.6);padding:40px 5%;display:flex;align-items:center;justify-content:space-between;flex-wrap:gap;gap:16px}
+  footer .footer-logo{font-size:1.2rem;font-weight:800;color:#fff}
+  footer a{color:rgba(255,255,255,.5);text-decoration:none;font-size:.85rem;transition:color .2s}
+  footer a:hover{color:#a5b4fc}
+  .footer-links{display:flex;gap:24px}
+  /* Animations */
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  @keyframes pulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.4);opacity:.7}}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+  /* Floating shapes */
+  .floating-shape{position:absolute;border-radius:50%;opacity:.15;animation:float 6s ease-in-out infinite}
+  @media(max-width:768px){.nav-links,.nav-cta .btn-outline{display:none}.hero-stats{gap:24px}.features-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav id="navbar">
+  <a href="/" class="nav-logo"><div class="logo-icon">🏦</div><span>BankEaseAI</span></a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#stats">Why Us</a></li>
+    <li><a href="#how">How it Works</a></li>
+  </ul>
+  <div class="nav-cta">
+    <a href="/login.html" class="btn btn-outline">Login</a>
+    <a href="/login.html" class="btn btn-primary">Get Started →</a>
+  </div>
+</nav>
+
+<section id="hero">
+  <canvas id="particle-canvas"></canvas>
+  <div class="floating-shape" style="width:300px;height:300px;background:var(--primary);top:-100px;right:-100px;filter:blur(80px)"></div>
+  <div class="floating-shape" style="width:200px;height:200px;background:#818cf8;bottom:50px;left:-80px;filter:blur(60px)"></div>
+  <div class="hero-content">
+    <div class="hero-badge"><span></span> Trusted by 10,000+ customers across India</div>
+    <h1 class="hero-title">
+      Banking Made<br>
+      <span id="typed-text" class="highlight"></span><span class="typed-cursor">|</span>
+    </h1>
+    <p class="hero-sub">Experience next-generation digital banking with instant transfers, AI-powered assistance, and enterprise-grade security — all in one platform.</p>
+    <div class="hero-btns">
+      <a href="/login.html" class="btn btn-hero-primary">🚀 Open Free Account</a>
+      <a href="#features" class="btn btn-hero-outline">✨ Explore Features</a>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">₹50Cr+</div><div class="lbl">Transferred</div></div>
+      <div class="hero-stat"><div class="num">10K+</div><div class="lbl">Happy Users</div></div>
+      <div class="hero-stat"><div class="num">99.9%</div><div class="lbl">Uptime</div></div>
+      <div class="hero-stat"><div class="num">0 Breach</div><div class="lbl">Security</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="features-header reveal">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need in one platform</h2>
+    <p class="section-sub">BankEaseAI combines security, speed, and simplicity to give you the best banking experience.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feature-card reveal"><div class="feature-icon">⚡</div><h3 class="feature-title">Instant Transfers</h3><p class="feature-desc">Send money to anyone instantly with UPI-style account transfers. PIN-protected for maximum security.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🔐</div><h3 class="feature-title">OTP Login</h3><p class="feature-desc">Two-factor authentication with email OTP ensures only you can access your account.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🤖</div><h3 class="feature-title">AI Chatbot</h3><p class="feature-desc">Our smart banking assistant answers your queries in real-time, 24/7 — in English or Hindi.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">📊</div><h3 class="feature-title">Smart Statements</h3><p class="feature-desc">View detailed transaction history, timestamps, and transaction IDs.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🎫</div><h3 class="feature-title">Support Tickets</h3><p class="feature-desc">Raise support tickets and chat directly with bank managers. Schedule appointments online.</p></div>
+    <div class="feature-card reveal"><div class="feature-icon">🛡️</div><h3 class="feature-title">Fraud Protection</h3><p class="feature-desc">Flagged accounts are automatically blocked from receiving transfers to protect your money.</p></div>
+  </div>
+</section>
+
+<section id="stats">
+  <div class="stats-inner">
+    <div class="stat-box reveal"><div class="count" data-target="10000">0</div><div class="stat-title">Registered Users</div></div>
+    <div class="stat-box reveal"><div class="count" data-target="5000000000">₹0</div><div class="stat-title">Total Transfers Processed</div></div>
+    <div class="stat-box reveal"><div class="count" data-target="99">0</div><div class="stat-title">% Customer Satisfaction</div></div>
+    <div class="stat-box reveal"><div class="count" data-target="500">0</div><div class="stat-title">Support Tickets Resolved</div></div>
+  </div>
+</section>
+
+<section id="how">
+  <div style="text-align:center;margin-bottom:16px" class="reveal">
+    <div class="section-label">How it Works</div>
+    <h2 class="section-title">Get started in 3 simple steps</h2>
+  </div>
+  <div class="how-grid">
+    <div class="how-step reveal"><div class="step-num">1</div><h3>Create Account</h3><p>Register with your Aadhaar, PAN, and basic details. Takes less than 2 minutes.</p></div>
+    <div class="how-step reveal"><div class="step-num">2</div><h3>Verify with OTP</h3><p>Receive a secure OTP on your email and verify your identity every login.</p></div>
+    <div class="how-step reveal"><div class="step-num">3</div><h3>Start Banking</h3><p>Transfer money, view statements, chat with support — all from your dashboard.</p></div>
+  </div>
+</section>
+
+<section id="cta">
+  <div class="reveal">
+    <h2>Ready to experience smarter banking?</h2>
+    <p>Join thousands of users who trust BankEaseAI for their daily banking needs.</p>
+    <a href="/login.html" class="btn btn-primary" style="padding:18px 48px;font-size:1.05rem;border-radius:16px">Open Your Account – It's Free 🚀</a>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">🏦 BankEaseAI</div>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="/support.html">Support</a>
+    <a href="/login.html">Login</a>
+  </div>
+  <div style="font-size:.8rem">© 2026 BankEaseAI. All rights reserved.</div>
+</footer>
+
+<script>
+// ── Effect 1: Particle Network Canvas ──────────────────────────
+const canvas=document.getElementById('particle-canvas');
+const ctx=canvas.getContext('2d');
+let particles=[];
+function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight}
+resize();window.addEventListener('resize',resize);
+function Particle(){this.x=Math.random()*canvas.width;this.y=Math.random()*canvas.height;this.vx=(Math.random()-.5)*.6;this.vy=(Math.random()-.5)*.6;this.r=Math.random()*2+1;this.alpha=Math.random()*.6+.2}
+Particle.prototype.update=function(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>canvas.width)this.vx*=-1;if(this.y<0||this.y>canvas.height)this.vy*=-1};
+for(let i=0;i<120;i++)particles.push(new Particle());
+let mouse={x:canvas.width/2,y:canvas.height/2};
+canvas.addEventListener('mousemove',e=>{mouse.x=e.clientX;mouse.y=e.clientY});
+function drawParticles(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  particles.forEach(p=>{
+    p.update();
+    ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(165,180,252,${p.alpha})`;ctx.fill();
+  });
+  for(let i=0;i<particles.length;i++)for(let j=i+1;j<particles.length;j++){
+    const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+    const dist=Math.sqrt(dx*dx+dy*dy);
+    if(dist<120){ctx.beginPath();ctx.strokeStyle=`rgba(99,102,241,${.15*(1-dist/120)})`;ctx.lineWidth=.8;ctx.moveTo(particles[i].x,particles[i].y);ctx.lineTo(particles[j].x,particles[j].y);ctx.stroke()}
+  }
+  requestAnimationFrame(drawParticles);
+}
+drawParticles();
+
+// ── Effect 2: Typewriter ────────────────────────────────────────
+const words=['Simpler.','Smarter.','Safer.','Instant.'];
+let wi=0,ci=0,del=false;
+const el=document.getElementById('typed-text');
+function type(){
+  const word=words[wi];
+  if(!del){el.textContent=word.slice(0,++ci);if(ci===word.length){del=true;setTimeout(type,1600);return}}
+  else{el.textContent=word.slice(0,--ci);if(ci===0){del=false;wi=(wi+1)%words.length}}
+  setTimeout(type,del?60:100);
+}
+type();
+
+// ── Effect 3: Scroll Reveal + Counter ─────────────────────────
+const revealEls=document.querySelectorAll('.reveal');
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.classList.add('visible');
+      const counter=e.target.querySelector('.count[data-target]');
+      if(counter)animateCounter(counter);
+      io.unobserve(e.target);
+    }
+  });
+},{threshold:0.15});
+revealEls.forEach(el=>io.observe(el));
+
+function animateCounter(el){
+  const target=+el.dataset.target;
+  const prefix=el.textContent.startsWith('₹')?'₹':'';
+  const suffix=el.closest('.stat-box').querySelector('.stat-title').textContent.includes('%')?'%':'';
+  let current=0;const steps=80;const inc=target/steps;
+  const interval=setInterval(()=>{
+    current=Math.min(current+inc,target);
+    if(target>=1000000){el.textContent=prefix+(current/10000000).toFixed(1)+'Cr'+suffix}
+    else if(target>=1000){el.textContent=prefix+(current/1000).toFixed(1)+'K'+suffix}
+    else{el.textContent=prefix+Math.round(current)+suffix}
+    if(current>=target)clearInterval(interval);
+  },20);
+}
+
+// Navbar scroll
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>50);
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    e.preventDefault();
+    document.querySelector(a.getAttribute('href')).scrollIntoView({behavior:'smooth'});
+  });
+});
+</script>
+</body>
+</html>

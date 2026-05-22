@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<title>BankEase – Authentication</title>
+<style>
+:root {
+    --p: #6366f1;
+    --d: #4f46e5;
+    --text-main: #1e293b;
+    --text-mut: #64748b;
+    --bg-page: #f4f7ff;
+    --border: #e2e8f0;
+    --err: #ef4444;
+    --ok: #10b981;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: var(--bg-page);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text-main);
+}
+
+/* Split Card Layout */
+.auth-wrapper {
+    display: flex;
+    width: 100%;
+    max-width: 1000px;
+    background: #fff;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(99, 102, 241, 0.08);
+    overflow: hidden;
+    min-height: 650px;
+}
+
+/* Left Panel - Hero */
+.auth-left {
+    flex: 1;
+    background: radial-gradient(circle at 80% 20%, #e0e7ff 0%, transparent 50%),
+                radial-gradient(circle at 20% 80%, #f3e8ff 0%, transparent 50%),
+                #eff6ff;
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 20px;
+}
+.brand span { color: var(--p); }
+
+.hero-text {
+    color: var(--text-mut);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 40px;
+    max-width: 90%;
+}
+
+.feature-list { display: flex; flex-direction: column; gap: 24px; }
+.feature { display: flex; align-items: center; gap: 16px; font-weight: 600; font-size: 0.95rem; color: var(--text-main); }
+.f-icon { width: 42px; height: 42px; border-radius: 12px; background: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); color: var(--p); }
+.f-icon.org { color: #f59e0b; }
+.f-icon.grn { color: #10b981; }
+
+/* Right Panel - Forms */
+.auth-right {
+    flex: 1.1;
+    padding: 50px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    max-height: 85vh;
+}
+
+/* Tabs */
+.tabs {
+    display: flex;
+    background: #f1f5f9;
+    border-radius: 12px;
+    padding: 6px;
+    margin-bottom: 30px;
+}
+.tab {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    background: transparent;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--text-mut);
+    cursor: pointer;
+    transition: 0.2s;
+}
+.tab.active { background: #fff; color: var(--p); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+.form-panel { display: none; animation: fadeIn 0.3s ease; }
+.form-panel.active { display: block; }
+.form-title { font-size: 0.8rem; color: var(--text-mut); margin-bottom: 20px; font-weight: 600; }
+
+/* Inputs */
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--text-mut); margin-bottom: 6px; }
+.input-group { position: relative; display: flex; align-items: center; }
+.input-group svg { position: absolute; left: 14px; width: 18px; height: 18px; color: #94a3b8; pointer-events: none; transition: 0.2s; }
+.field input, .field select, .field textarea {
+    width: 100%;
+    padding: 14px 14px 14px 40px;
+    border: 1.5px solid var(--border);
+    border-left: 3px solid transparent;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-family: 'Inter', sans-serif;
+    color: var(--text-main);
+    outline: none;
+    transition: 0.2s;
+    background: #fff;
+}
+.field textarea { padding-left: 14px; resize: vertical; min-height: 80px; border-left: 1.5px solid var(--border); }
+.field input:focus { border-color: var(--p); border-left: 3px solid var(--p); box-shadow: 0 4px 12px rgba(99,102,241,0.08); }
+.field input:focus + svg, .input-group input:focus ~ svg { color: var(--p); }
+
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* Buttons */
+.btn-primary { width: 100%; padding: 15px; background: linear-gradient(135deg, var(--d), var(--p)); color: #fff; border: none; border-radius: 12px; font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary:hover { box-shadow: 0 8px 20px rgba(99,102,241,0.3); transform: translateY(-1px); }
+.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-outline { background: transparent; color: var(--text-main); border: 1.5px solid var(--border); margin-top: 10px; }
+.btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; box-shadow: none; color: var(--text-main); }
+.btn-back { background: none; border: none; color: var(--text-mut); font-size: 0.85rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; margin-bottom: 20px; }
+.btn-back:hover { color: var(--p); }
+
+/* OTP & Steps */
+.step { display: none; }
+.step.active { display: block; }
+.otp-wrap { display: flex; gap: 10px; justify-content: space-between; margin: 24px 0; }
+.otp-digit { width: 50px; height: 56px; border: 1.5px solid var(--border); border-radius: 12px; font-size: 1.4rem; font-weight: 800; text-align: center; color: var(--p); outline: none; transition: 0.2s; padding: 0 !important; border-left: 1.5px solid var(--border) !important; }
+.otp-digit:focus { border-color: var(--p); box-shadow: 0 0 0 4px rgba(99,102,241,0.1); }
+.timer-row { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 24px; color: var(--text-mut); font-weight: 600; }
+.resend-btn { color: var(--p); background: none; border: none; font-weight: 700; cursor: pointer; font-family: inherit; }
+.resend-btn:disabled { color: #cbd5e1; cursor: not-allowed; }
+
+/* Utilities */
+.alert { padding: 14px; border-radius: 10px; font-size: 0.85rem; font-weight: 600; margin-bottom: 20px; display: none; }
+.alert.ok { background: #f0fdf4; color: var(--ok); border: 1px solid #bbf7d0; display: block; }
+.alert.err { background: #fef2f2; color: var(--err); border: 1px solid #fecaca; display: block; }
+.alert.info { background: #eef2ff; color: var(--p); border: 1px solid #c7d2fe; display: block; }
+.divider { text-align: center; color: var(--text-mut); font-size: 0.75rem; font-weight: 700; margin: 24px 0; position: relative; text-transform: uppercase; }
+.divider::before, .divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border); }
+.divider::before { left: 0; } .divider::after { right: 0; }
+.spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: none; } }
+
+/* Scrollbar styling for forms */
+.auth-right::-webkit-scrollbar { width: 6px; }
+.auth-right::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+@media (max-width: 900px) {
+    .auth-wrapper { flex-direction: column; }
+    .auth-left { padding: 40px 30px; display: none; /* Hide hero on small mobile */ }
+    .auth-right { padding: 30px 20px; max-height: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="auth-wrapper">
+    <div class="auth-left">
+        <div class="brand">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M3 10h18"/><path d="M5 6l7-3 7 3"/><path d="M4 10v11"/><path d="M20 10v11"/><path d="M8 14v3"/><path d="M12 14v3"/><path d="M16 14v3"/></svg>
+            <span>BankEaseAI</span>
+        </div>
+        <div class="hero-text">
+            Your money, your control. Experience modern banking built for the digital age.
+        </div>
+        
+        <div class="feature-list">
+            <div class="feature">
+                <div class="f-icon org"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+                OTP-based Secure Login
+            </div>
+            <div class="feature">
+                <div class="f-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                Instant Fund Transfers
+            </div>
+            <div class="feature">
+                <div class="f-icon grn"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg></div>
+                Real-time Analytics
+            </div>
+            <div class="feature">
+                <div class="f-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></div>
+                AI-powered Chatbot
+            </div>
+        </div>
+    </div>
+
+    <div class="auth-right">
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('login')">Sign In</button>
+            <button class="tab" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <div class="form-panel active" id="panel-login">
+            
+            <div class="step active" id="login-s1">
+                <div class="form-title">Enter credentials to securely sign in</div>
+                <div class="alert" id="s1-alert"></div>
+                
+                <div class="field">
+                    <label>Email Address / Username</label>
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        <input type="email" id="login-email" placeholder="sagar@gmail.com" onkeydown="if(event.key==='Enter')sendOtp()">
+                    </div>
+                </div>
+                
+                <button class="btn-primary" id="otp-btn" onclick="sendOtp()">
+                    <span id="otp-btn-txt">Send OTP to Email</span>
+                </button>
+
+                <div class="divider">Corporate Access</div>
+                
+                <div class="field">
+                    <label>Manager Username</label>
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                        <input type="text" id="mgr-user" placeholder="Manager ID">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Password</label>
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="mgr-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')managerLogin()">
+                    </div>
+                </div>
+                
+                <div class="alert" id="mgr-alert"></div>
+                <button class="btn-primary btn-outline" onclick="managerLogin()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    Manager Login
+                </button>
+            </div>
+
+            <div class="step" id="login-s2">
+                <button class="btn-back" onclick="backToStep1()">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+                    Back
+                </button>
+                <div style="font-weight: 700; font-size: 1.1rem; margin-bottom: 6px;">Check your email</div>
+                <div style="font-size: 0.85rem; color: var(--text-mut); margin-bottom: 24px;">
+                    We sent a 6-digit code to <strong id="email-preview-txt" style="color:var(--text-main)"></strong>
+                </div>
+
+                <div class="otp-wrap" id="otp-inputs">
+                    <input class="otp-digit" maxlength="1" type="tel" id="otp0" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)">
+                    <input class="otp-digit" maxlength="1" type="tel" id="otp1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)">
+                    <input class="otp-digit" maxlength="1" type="tel" id="otp2" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)">
+                    <input class="otp-digit" maxlength="1" type="tel" id="otp3" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)">
+                    <input class="otp-digit" maxlength="1" type="tel" id="otp4" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)">
+                    <input class="otp-digit" maxlength="1" type="tel" id="otp5" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)">
+                </div>
+
+                <div class="timer-row">
+                    <span id="timer-txt">Code expires in <span id="countdown" style="font-weight:700; color:var(--text-main)">05:00</span></span>
+                    <button class="resend-btn" id="resend-btn" disabled onclick="resendOtp()">Resend Code</button>
+                </div>
+                
+                <div class="alert" id="s2-alert"></div>
+                <button class="btn-primary" id="verify-btn" onclick="verifyOtp()">
+                    <span id="verify-btn-txt">Verify & Login</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="form-panel" id="panel-register">
+            <div class="form-title">Fill in your KYC details below</div>
+            <div class="alert" id="reg-alert"></div>
+            
+            <div class="field">
+                <label>Full Name</label>
+                <div class="input-group">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <input type="text" id="reg-name" placeholder="Sujeet Gaud">
+                </div>
+            </div>
+            
+            <div class="field">
+                <label>Email Address (Username)</label>
+                <div class="input-group">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                    <input type="email" id="reg-email" placeholder="sagar@gmail.com">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Phone Number</label>
+                <div class="input-group">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    <input type="tel" id="reg-phone" placeholder="9876543210">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Date of Birth</label>
+                <div class="input-group">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    <input type="date" id="reg-dob">
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label>Aadhaar Number</label>
+                    <input type="text" id="reg-aadhaar" placeholder="1234 5678 9012" maxlength="12" style="padding-left:14px">
+                </div>
+                <div class="field">
+                    <label>PAN Card</label>
+                    <input type="text" id="reg-pan" placeholder="ABCDE1234F" maxlength="10" style="padding-left:14px">
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Residential Address</label>
+                <textarea id="reg-address" placeholder="123 Street Name, City"></textarea>
+            </div>
+
+            <div class="grid-2">
+                <div class="field">
+                    <label>App Password</label>
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        <input type="password" id="reg-pass" placeholder="••••••">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Secure PIN</label>
+                    <div class="input-group">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><circle cx="12" cy="16" r="1"/></svg>
+                        <input type="tel" id="reg-pin" maxlength="4" placeholder="4-Digit">
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="reg-btn" onclick="registerUser()" style="margin-top:10px">
+                <span id="reg-btn-txt">Create Account</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+// --- CORE LOGIC (Untouched, same mapping & functionality) ---
+let userId = null, timerInterval = null, countdownSec = 300;
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+    document.getElementById('panel-login').classList.toggle('active', tab==='login');
+    document.getElementById('panel-register').classList.toggle('active', tab==='register');
+}
+
+function otpInput(el, idx) {
+    el.value = el.value.replace(/[^0-9]/g,'');
+    if (el.value && idx < 5) document.getElementById('otp'+(idx+1)).focus();
+    if (getOtp().length === 6) verifyOtp();
+}
+function otpKey(e, idx) {
+    if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+        document.getElementById('otp'+(idx-1)).value = '';
+        document.getElementById('otp'+(idx-1)).focus();
+    }
+}
+function getOtp() { return [0,1,2,3,4,5].map(i => document.getElementById('otp'+i).value).join(''); }
+function clearOtpInputs() { [0,1,2,3,4,5].forEach(i => document.getElementById('otp'+i).value=''); }
+
+function startTimer() {
+    clearInterval(timerInterval);
+    countdownSec = 300;
+    document.getElementById('resend-btn').disabled = true;
+    timerInterval = setInterval(() => {
+        countdownSec--;
+        const m = String(Math.floor(countdownSec/60)).padStart(2,'0');
+        const s = String(countdownSec%60).padStart(2,'0');
+        document.getElementById('countdown').textContent = m+':'+s;
+        if (countdownSec <= 0) {
+            clearInterval(timerInterval);
+            document.getElementById('timer-txt').innerHTML = '<span style="color:red">OTP expired</span>';
+            document.getElementById('resend-btn').disabled = false;
+        }
+    }, 1000);
+}
+
+async function sendOtp() {
+    const email = document.getElementById('login-email').value.trim();
+    if (!email) { showAlert('s1-alert','err','Please enter your email'); return; }
+    const btn = document.getElementById('otp-btn'), btnTxt = document.getElementById('otp-btn-txt');
+    btn.disabled = true; btnTxt.innerHTML = '<div class="spinner"></div> Sending...';
+    hideAlert('s1-alert');
+    try {
+        const res = await fetch('/api/login-start', {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+            body: JSON.stringify({username: email, role: 'user'})
+        });
+        const d = await res.json();
+        if (d.success) {
+            userId = d.user_id;
+            document.getElementById('email-preview-txt').textContent = email;
+            document.getElementById('login-s1').classList.remove('active');
+            document.getElementById('login-s2').classList.add('active');
+            startTimer();
+            setTimeout(() => document.getElementById('otp0').focus(), 100);
+        } else showAlert('s1-alert', 'err', d.message);
+    } catch { showAlert('s1-alert', 'err', 'Network error. Check connection.'); }
+    btn.disabled = false; btnTxt.textContent = 'Send OTP to Email';
+}
+
+async function resendOtp() {
+    const email = document.getElementById('email-preview-txt').textContent;
+    document.getElementById('resend-btn').disabled = true;
+    clearOtpInputs();
+    document.getElementById('timer-txt').innerHTML = 'Code expires in <span id="countdown" style="font-weight:700">05:00</span>';
+    try {
+        const res = await fetch('/api/login-start', {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+            body: JSON.stringify({username: email, role: 'user'})
+        });
+        const d = await res.json();
+        if (d.success) {
+            userId = d.user_id;
+            showAlert('s2-alert','info','New OTP sent to your email!');
+            startTimer();
+            setTimeout(() => document.getElementById('otp0').focus(), 100);
+        } else showAlert('s2-alert','err',d.message);
+    } catch { showAlert('s2-alert','err','Network error'); }
+}
+
+async function verifyOtp() {
+    const otp = getOtp();
+    if (otp.length !== 6) { showAlert('s2-alert','err','Enter all 6 digits'); return; }
+    const btn = document.getElementById('verify-btn'), btnTxt = document.getElementById('verify-btn-txt');
+    btn.disabled = true; btnTxt.innerHTML = '<div class="spinner"></div> Verifying...';
+    hideAlert('s2-alert');
+    try {
+        const res = await fetch('/api/login-verify', {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+            body: JSON.stringify({user_id: userId, otp: otp})
+        });
+        const d = await res.json();
+        if (d.success) {
+            clearInterval(timerInterval);
+            showAlert('s2-alert','ok','Login successful! Redirecting...');
+            localStorage.setItem('be_user', JSON.stringify(d.user));
+            setTimeout(() => { window.location.href = d.user.role === 'manager' ? '/manager.html' : '/dashboard.html'; }, 800);
+        } else {
+            showAlert('s2-alert','err', d.message);
+            clearOtpInputs();
+            setTimeout(() => document.getElementById('otp0').focus(), 100);
+        }
+    } catch { showAlert('s2-alert','err','Network error'); }
+    btn.disabled = false; btnTxt.textContent = 'Verify & Login';
+}
+
+async function managerLogin() {
+    const username = document.getElementById('mgr-user').value.trim();
+    const password = document.getElementById('mgr-pass').value.trim();
+    if (!username || !password) { showAlert('mgr-alert','err','Enter username and password'); return; }
+    hideAlert('mgr-alert');
+    try {
+        const res = await fetch('/api/login-start', {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+            body: JSON.stringify({username, password, role: 'manager'})
+        });
+        const d = await res.json();
+        if (d.success && d.user) {
+            showAlert('mgr-alert','ok','Welcome, Manager! Redirecting...');
+            localStorage.setItem('be_user', JSON.stringify(d.user));
+            setTimeout(() => window.location.href = '/manager.html', 800);
+        } else if (d.success) { showAlert('mgr-alert','ok','OTP sent. Check email.');
+        } else { showAlert('mgr-alert','err', d.message); }
+    } catch { showAlert('mgr-alert','err','Network error'); }
+}
+
+async function registerUser() {
+    const data = {
+        username:  document.getElementById('reg-email').value.trim(),
+        password:  document.getElementById('reg-pass').value.trim(),
+        pin:       document.getElementById('reg-pin').value.trim(),
+        full_name: document.getElementById('reg-name').value.trim(),
+        phone:     document.getElementById('reg-phone').value.trim(),
+        dob:       document.getElementById('reg-dob').value,
+        aadhaar:   document.getElementById('reg-aadhaar').value.trim(),
+        pan:       document.getElementById('reg-pan').value.trim().toUpperCase(),
+        address:   document.getElementById('reg-address').value.trim()
+    };
+    if (!data.username || !data.password || !data.pin || !data.full_name) { showAlert('reg-alert','err','Please fill all required fields'); return; }
+    if (data.pin.length !== 4) { showAlert('reg-alert','err','PIN must be exactly 4 digits'); return; }
+    
+    const btn = document.getElementById('reg-btn'), btnTxt = document.getElementById('reg-btn-txt');
+    btn.disabled = true; btnTxt.innerHTML = '<div class="spinner"></div> Creating...';
+    hideAlert('reg-alert');
+    try {
+        const res = await fetch('/api/register', {
+            method: 'POST', headers: {'Content-Type': 'application/json'}, credentials: 'include',
+            body: JSON.stringify(data)
+        });
+        const d = await res.json();
+        if (d.success) {
+            showAlert('reg-alert','ok','Account created! Your Account ID: ' + d.account_id + ' — Now login.');
+            setTimeout(() => switchTab('login'), 2500);
+        } else showAlert('reg-alert','err', d.message);
+    } catch { showAlert('reg-alert','err','Network error'); }
+    btn.disabled = false; btnTxt.textContent = 'Create Account';
+}
+
+function backToStep1() {
+    clearInterval(timerInterval);
+    document.getElementById('login-s2').classList.remove('active');
+    document.getElementById('login-s1').classList.add('active');
+    clearOtpInputs(); hideAlert('s2-alert');
+}
+
+function showAlert(id,type,msg){const a=document.getElementById(id);a.className='alert '+type;a.textContent=msg;}
+function hideAlert(id){document.getElementById(id).className='alert';}
+</script>
+</body>
+</html>

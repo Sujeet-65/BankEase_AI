@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BankEase – Manager Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f2ff;min-height:100vh;display:flex}
+
+/* ════ SIDEBAR ════ */
+.sidebar{width:240px;min-height:100vh;background:linear-gradient(180deg,#1e1b4b 0%,#2d2a6e 100%);display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;box-shadow:4px 0 20px rgba(0,0,0,.15)}
+.sidebar-brand{padding:22px 20px 18px;border-bottom:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px}
+.sidebar-brand svg{width:28px;height:28px;flex-shrink:0}
+.sidebar-brand .brand-text{display:flex;flex-direction:column}
+.sidebar-brand .brand-name{font-size:1.05rem;font-weight:800;color:#fff;line-height:1}
+.sidebar-brand .brand-badge{font-size:.6rem;font-weight:700;color:#a5b4fc;letter-spacing:.5px;margin-top:3px;text-transform:uppercase}
+
+/* Manager Info */
+.sidebar-user{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:10px}
+.su-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:800;color:#fff;flex-shrink:0}
+.su-info .su-name{font-size:.8rem;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.su-info .su-role{font-size:.65rem;color:#a5b4fc;font-weight:500}
+
+/* Nav Items */
+.sidebar-nav{flex:1;padding:12px 10px;display:flex;flex-direction:column;gap:2px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.6);font-size:.83rem;font-weight:600;border:none;background:none;font-family:'Inter',sans-serif;width:100%;text-align:left;transition:.15s;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.active{background:rgba(99,102,241,.35);color:#fff;box-shadow:inset 3px 0 0 #818cf8}
+.nav-item svg{width:17px;height:17px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:#ef4444;color:#fff;padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:800}
+.nav-fbadge{margin-left:auto;background:#f59e0b;color:#fff;padding:1px 7px;border-radius:20px;font-size:.62rem;font-weight:800}
+
+/* Logout at bottom */
+.sidebar-footer{padding:14px 10px;border-top:1px solid rgba(255,255,255,.08)}
+.btn-logout{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:10px;cursor:pointer;color:rgba(255,255,255,.55);font-size:.82rem;font-weight:600;border:none;background:none;font-family:'Inter',sans-serif;width:100%;text-align:left;transition:.15s}
+.btn-logout:hover{background:rgba(239,68,68,.15);color:#fca5a5}
+.btn-logout svg{width:17px;height:17px;flex-shrink:0}
+
+/* ════ MAIN CONTENT ════ */
+.main{margin-left:240px;flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:#fff;padding:0 28px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:50;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.topbar-title{font-size:1rem;font-weight:800;color:#1f2937;display:flex;align-items:center;gap:8px}
+.topbar-title svg{width:18px;height:18px}
+.topbar-right{display:flex;align-items:center;gap:8px;color:#6b7280;font-size:.82rem}
+.topbar-right strong{color:#1f2937}
+
+.content{padding:24px 28px;flex:1}
+
+/* ════ STATS ════ */
+.stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:22px}
+.stat-card{background:#fff;border-radius:14px;padding:18px 16px;box-shadow:0 2px 10px rgba(0,0,0,.05);border-left:4px solid #6366f1}
+.sc-icon{margin-bottom:8px}
+.sc-icon svg{width:22px;height:22px}
+.sc-label{font-size:.68rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.sc-value{font-size:1.8rem;font-weight:800;color:#1f2937}
+
+/* ════ CARDS ════ */
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(0,0,0,.05);margin-bottom:18px}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-header h2{font-size:.95rem;font-weight:800;color:#1f2937;display:flex;align-items:center;gap:7px}
+.card-header h2 svg{width:17px;height:17px}
+
+/* ════ TABLE ════ */
+.table-wrap{overflow-x:auto;border-radius:10px;border:1px solid #e5e7eb}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{background:#f9fafb;padding:10px 14px;text-align:left;font-size:.7rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;border-bottom:1px solid #e5e7eb;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid #f3f4f6;color:#374151;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafe}
+
+/* ════ BADGES ════ */
+.badge{padding:3px 9px;border-radius:20px;font-size:.68rem;font-weight:700;text-transform:uppercase}
+.badge-pending{background:#fef3c7;color:#d97706}
+.badge-scheduled{background:#d1fae5;color:#065f46}
+.badge-resolved{background:#e0e7ff;color:#4338ca}
+.badge-active{background:#dcfce7;color:#16a34a}
+.badge-frozen{background:#fee2e2;color:#dc2626}
+.badge-high{background:#fee2e2;color:#dc2626}
+.badge-med{background:#fef3c7;color:#d97706}
+.badge-low{background:#f0fdf4;color:#16a34a}
+.badge-reviewed{background:#e0e7ff;color:#6d28d9}
+
+/* ════ BUTTONS ════ */
+.btn{padding:6px 13px;border-radius:8px;border:none;font-size:.76rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:.15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.btn svg{width:13px;height:13px}
+.btn:hover{opacity:.88;transform:translateY(-1px)}
+.btn-primary{background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff}
+.btn-green{background:#10b981;color:#fff}
+.btn-red{background:#ef4444;color:#fff}
+.btn-blue{background:#3b82f6;color:#fff}
+.btn-purple{background:#8b5cf6;color:#fff}
+.btn-amber{background:#f59e0b;color:#fff}
+.btn-gray{background:#f3f4f6;color:#374151;border:1px solid #e5e7eb}
+.btn-sm{padding:5px 10px;font-size:.72rem}
+
+/* ════ FORM ════ */
+.form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.form-group{flex:1;min-width:160px}
+.form-group label{display:block;font-size:.71rem;font-weight:700;color:#6b7280;margin-bottom:5px;text-transform:uppercase;letter-spacing:.3px}
+.form-group input{width:100%;padding:9px 12px;border:2px solid #e5e7eb;border-radius:9px;font-size:.84rem;font-family:'Inter',sans-serif;outline:none;color:#1f2937;transition:.15s}
+.form-group input:focus{border-color:#6366f1}
+.alert{padding:9px 14px;border-radius:9px;font-size:.78rem;font-weight:600;display:none;margin-top:10px}
+.alert.ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;display:block}
+.alert.err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;display:block}
+
+/* ════ FRAUD ════ */
+.fraud-row-high td{background:#fff5f5 !important}
+.fraud-row-high:hover td{background:#fee2e2 !important}
+.risk-bar{background:#e5e7eb;border-radius:20px;height:7px;overflow:hidden;min-width:80px;margin-top:5px}
+.risk-fill{height:100%;border-radius:20px}
+
+/* ════ DRAWER ════ */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s}
+.drawer-overlay.open{opacity:1;pointer-events:all}
+.drawer{position:fixed;right:-560px;top:0;bottom:0;width:560px;background:#fff;z-index:400;display:flex;flex-direction:column;box-shadow:-6px 0 30px rgba(0,0,0,.15);transition:right .3s cubic-bezier(.4,0,.2,1)}
+.drawer.open{right:0}
+.drawer-header{background:linear-gradient(135deg,#1e1b4b,#4f46e5);padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;color:#fff;flex-shrink:0}
+.drawer-header .dh-info h3{font-size:.95rem;font-weight:800}
+.drawer-header .dh-info p{font-size:.72rem;opacity:.75;margin-top:3px}
+.drawer-close{background:rgba(255,255,255,.15);border:none;color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.appt-section{padding:14px 18px;background:#f8fafc;border-bottom:2px solid #e5e7eb;flex-shrink:0}
+.appt-section h4{font-size:.72rem;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.pref-time-box{background:#f5f3ff;border:1.5px solid #ddd6fe;border-radius:8px;padding:9px 12px;margin-bottom:10px;font-size:.8rem;color:#5b21b6;font-weight:600}
+.pref-time-box .ptb-label{font-size:.65rem;color:#7c3aed;font-weight:500;display:block;margin-bottom:2px}
+.appt-row{display:flex;gap:8px;align-items:flex-end}
+.appt-row .ar-group{flex:1}
+.appt-row label{font-size:.69rem;font-weight:700;color:#6b7280;display:block;margin-bottom:4px;text-transform:uppercase}
+.appt-row input{width:100%;padding:8px 10px;border:2px solid #e5e7eb;border-radius:8px;font-size:.8rem;font-family:'Inter',sans-serif;outline:none;color:#1f2937;transition:.15s}
+.appt-row input:focus{border-color:#10b981}
+.btn-approve{padding:9px 16px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:9px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:.2s}
+.btn-approve:hover{box-shadow:0 3px 12px rgba(16,185,129,.4);transform:translateY(-1px)}
+.appt-alert{padding:8px 12px;border-radius:8px;font-size:.76rem;font-weight:600;display:none;margin-top:8px}
+.appt-alert.ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;display:block}
+.appt-alert.err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;display:block}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.msg-row{display:flex;gap:8px;max-width:85%}
+.msg-row.me{align-self:flex-end;flex-direction:row-reverse}
+.msg-row.them{align-self:flex-start}
+.msg-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;flex-shrink:0;margin-top:4px}
+.msg-row.me .msg-av{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.msg-row.them .msg-av{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+.msg-bubble{border-radius:12px;padding:9px 13px;box-shadow:0 1px 4px rgba(0,0,0,.07);max-width:100%}
+.msg-row.me .msg-bubble{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.msg-row.them .msg-bubble{background:#fff;color:#1f2937}
+.mb-name{font-size:.63rem;font-weight:700;color:rgba(255,255,255,.7);margin-bottom:2px}
+.msg-row.them .mb-name{color:#9ca3af}
+.mb-text{font-size:.82rem;line-height:1.45;word-break:break-word}
+.mb-time{font-size:.61rem;margin-top:3px;text-align:right;color:rgba(255,255,255,.55)}
+.msg-row.them .mb-time{color:#9ca3af}
+.msg-img{max-width:180px;border-radius:8px;display:block;margin-top:6px;cursor:pointer}
+.msg-doc{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:600;background:rgba(255,255,255,.2);padding:6px 10px;border-radius:7px;margin-top:5px;text-decoration:none;color:inherit}
+.msg-row.them .msg-doc{background:#f3f4f6;color:#374151}
+.chat-input-area{background:#f9fafb;border-top:1px solid #e5e7eb;padding:12px;flex-shrink:0}
+.file-preview{background:#eef2ff;border-radius:7px;padding:6px 10px;margin-bottom:7px;display:none;align-items:center;justify-content:space-between;font-size:.74rem;font-weight:600;color:#4f46e5}
+.file-preview .fp-rm{cursor:pointer;color:#ef4444;padding:0 4px}
+.input-row{display:flex;gap:7px;align-items:flex-end}
+.input-row textarea{flex:1;padding:9px 12px;border:2px solid #e5e7eb;border-radius:9px;font-size:.84rem;font-family:'Inter',sans-serif;outline:none;resize:none;max-height:80px;overflow-y:auto;transition:.15s}
+.input-row textarea:focus{border-color:#6366f1}
+.btn-att{width:34px;height:34px;border-radius:8px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.15s;flex-shrink:0}
+.btn-att svg{width:16px;height:16px;color:#6b7280}
+.btn-att:hover{border-color:#6366f1;background:#eef2ff}
+.btn-snd{width:34px;height:34px;border-radius:8px;border:none;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
+.btn-snd svg{width:16px;height:16px}
+.btn-snd:hover{transform:scale(1.07)}
+.btn-snd:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.locked-chat{padding:14px;text-align:center;color:#9ca3af;font-size:.78rem;line-height:1.6;border-top:1px solid #e5e7eb}
+.spinner{width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:10px}
+#mgr-file-input{display:none}
+</style>
+</head>
+<body>
+
+<!-- ════ LEFT SIDEBAR ════ -->
+<div class="sidebar">
+  <!-- Brand -->
+  <div class="sidebar-brand">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#a5b4fc" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="10" width="18" height="11" rx="2"/><path d="M3 10l9-7 9 7"/>
+      <line x1="12" y1="10" x2="12" y2="21"/>
+    </svg>
+    <div class="brand-text">
+      <span class="brand-name">BankEase</span>
+      <span class="brand-badge">Manager Panel</span>
+    </div>
+  </div>
+
+  <!-- Manager Info -->
+  <div class="sidebar-user">
+    <div class="su-avatar" id="mgr-avatar">M</div>
+    <div class="su-info">
+      <div class="su-name" id="mgr-name">Loading...</div>
+      <div class="su-role">Branch Manager</div>
+    </div>
+  </div>
+
+  <!-- Nav Items -->
+  <nav class="sidebar-nav">
+    <button class="nav-item active" id="tab-btn-dashboard" onclick="switchTab('dashboard')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" id="tab-btn-users" onclick="switchTab('users')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Users
+    </button>
+    <button class="nav-item" id="tab-btn-support" onclick="switchTab('support')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Support
+      <span class="nav-badge" id="pending-badge" style="display:none">0</span>
+    </button>
+    <button class="nav-item" id="tab-btn-fraud" onclick="switchTab('fraud')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Fraud Alerts
+      <span class="nav-fbadge" id="fraud-badge" style="display:none">0</span>
+    </button>
+  </nav>
+
+  <!-- Logout -->
+  <div class="sidebar-footer">
+    <button class="btn-logout" onclick="doLogout()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+</div>
+
+<!-- ════ MAIN AREA ════ -->
+<div class="main">
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="topbar-right">
+      Welcome, <strong id="mgr-name-top">Manager</strong>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ DASHBOARD ══ -->
+    <div id="tab-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card" style="border-left-color:#6366f1">
+          <div class="sc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          <div class="sc-label">Total Users</div>
+          <div class="sc-value" id="st-users">—</div>
+        </div>
+        <div class="stat-card" style="border-left-color:#10b981">
+          <div class="sc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <div class="sc-label">Total Balance</div>
+          <div class="sc-value" id="st-balance">—</div>
+        </div>
+        <div class="stat-card" style="border-left-color:#ef4444">
+          <div class="sc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <div class="sc-label">Frozen Accounts</div>
+          <div class="sc-value" id="st-frozen">—</div>
+        </div>
+        <div class="stat-card" style="border-left-color:#f59e0b">
+          <div class="sc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="sc-label">Pending Tickets</div>
+          <div class="sc-value" id="st-tickets">—</div>
+        </div>
+        <div class="stat-card" style="border-left-color:#dc2626">
+          <div class="sc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+          <div class="sc-label">Fraud Alerts</div>
+          <div class="sc-value" id="st-fraud">—</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <h2>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Add Money to Account
+          </h2>
+        </div>
+        <div id="add-money-alert"></div>
+        <div class="form-row">
+          <div class="form-group"><label>Account Number</label><input id="add-account" type="text" placeholder="ACCT-1-XXXX"></div>
+          <div class="form-group" style="max-width:180px"><label>Amount (Rs.)</label><input id="add-amount" type="number" placeholder="1000" min="1"></div>
+          <div style="display:flex;align-items:flex-end;padding-bottom:2px">
+            <button class="btn btn-green" onclick="addMoney()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Money
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ USERS ══ -->
+    <div id="tab-users" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2><svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>All Users</h2>
+          <button class="btn btn-gray btn-sm" onclick="loadUsers()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh</button>
+        </div>
+        <div id="users-alert"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Full Name</th><th>Email</th><th>Account No.</th><th>Balance</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="users-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#9ca3af">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SUPPORT ══ -->
+    <div id="tab-support" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2><svg viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Support Tickets</h2>
+          <button class="btn btn-gray btn-sm" onclick="loadTickets()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>User</th><th>Subject</th><th>Requested Time</th><th>Confirmed Appt.</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="tickets-tbody"><tr><td colspan="7" style="text-align:center;padding:30px;color:#9ca3af">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ FRAUD ALERTS ══ -->
+    <div id="tab-fraud" style="display:none">
+      <div class="card">
+        <div class="card-header">
+          <h2><svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Fraud Detection Alerts</h2>
+          <button class="btn btn-gray btn-sm" onclick="loadFraudAlerts()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>User</th><th>Account</th><th>Amount</th><th>Risk Score</th><th>Flags Detected</th><th>Time</th><th>Status</th><th>Action</th></tr></thead>
+            <tbody id="fraud-tbody"><tr><td colspan="9" style="text-align:center;padding:30px;color:#9ca3af">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ════ CHAT DRAWER ════ -->
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="chat-drawer">
+  <div class="drawer-header">
+    <div class="dh-info"><h3 id="drawer-title">Support Chat</h3><p id="drawer-sub">Ticket #—</p></div>
+    <button class="drawer-close" onclick="closeDrawer()">&#x2715;</button>
+  </div>
+  <div class="appt-section" id="appt-section">
+    <h4>Appointment Approval</h4>
+    <div id="pref-time-box" style="display:none" class="pref-time-box">
+      <span class="ptb-label">User requested time:</span>
+      <span id="pref-time-val">—</span>
+    </div>
+    <div class="appt-row">
+      <div class="ar-group"><label>Set Appointment Time</label><input type="datetime-local" id="appt-input"></div>
+      <button class="btn-approve" id="approve-btn" onclick="approveAppointment()"><span id="approve-btn-txt">Approve &amp; Open Chat</span></button>
+    </div>
+    <div id="appt-alert"></div>
+  </div>
+  <div class="chat-messages" id="drawer-messages">
+    <div style="text-align:center;padding:30px;color:#9ca3af;font-size:.8rem">Approve appointment to start chatting</div>
+  </div>
+  <div id="drawer-input"></div>
+</div>
+<input type="file" id="mgr-file-input" accept="image/*,.pdf,.doc,.docx" onchange="mgrFileChosen(this)">
+
+<script>
+let mgrUser=null, activeTicket=null, drawerPoll=null, mgrFile=null;
+
+document.addEventListener('DOMContentLoaded',()=>{
+  loadMgrProfile();
+  loadStats();
+  loadTickets();
+});
+
+// ── Safe fetch — always returns JSON or null ───────────────────
+async function safeFetch(url, opts={}) {
+  try {
+    const r = await fetch(url, {credentials:'include', ...opts});
+    const ct = r.headers.get('content-type')||'';
+    if (!ct.includes('application/json')) {
+      console.error('Non-JSON response from', url, '— status:', r.status);
+      return null;
+    }
+    return await r.json();
+  } catch(e) {
+    console.error('Fetch error:', url, e.message);
+    return null;
+  }
+}
+
+// ── Profile ────────────────────────────────────────────────────
+async function loadMgrProfile() {
+  const d = await safeFetch('/api/profile');
+  if (d && d.success && d.user.role==='manager') {
+    mgrUser = d.user;
+    document.getElementById('mgr-name').textContent = d.user.full_name || 'Manager';
+  } else {
+    window.location.href='/login.html';
+  }
+}
+
+// ── Tabs ───────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['dashboard','users','support','fraud'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+    document.getElementById('tab-btn-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='users')     loadUsers();
+  if(tab==='support')   loadTickets();
+  if(tab==='dashboard') loadStats();
+  if(tab==='fraud')     loadFraudAlerts();
+}
+
+// ── Stats ──────────────────────────────────────────────────────
+async function loadStats() {
+  const d = await safeFetch('/api/admin/stats');
+  if(!d||!d.success) return;
+  document.getElementById('st-users').textContent   = d.total_users;
+  document.getElementById('st-balance').textContent = 'Rs.'+Number(d.total_balance||0).toLocaleString('en-IN',{maximumFractionDigits:0});
+  document.getElementById('st-frozen').textContent  = d.frozen_accounts;
+  document.getElementById('st-tickets').textContent = d.pending_tickets;
+  document.getElementById('st-fraud').textContent   = d.unreviewed_fraud||0;
+  const pb=document.getElementById('pending-badge');
+  if(d.pending_tickets>0){pb.style.display='inline';pb.textContent=d.pending_tickets;}else pb.style.display='none';
+  const fb=document.getElementById('fraud-badge');
+  if((d.unreviewed_fraud||0)>0){fb.style.display='inline';fb.textContent=d.unreviewed_fraud;}else fb.style.display='none';
+}
+
+// ── Users ──────────────────────────────────────────────────────
+async function loadUsers() {
+  const tbody=document.getElementById('users-tbody');
+  tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:#9ca3af">Loading...</td></tr>';
+  const d = await safeFetch('/api/admin/users');
+  if(!d||!d.success||!d.users?.length){
+    tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:30px;color:#9ca3af">No users found.</td></tr>';
+    return;
+  }
+  tbody.innerHTML=d.users.map((u,idx)=>{
+    const frozen=u.is_frozen==1||u.is_frozen===true;
+    const bal=parseFloat(u.balance||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+    return `<tr>
+      <td style="color:#9ca3af;font-size:.78rem">${idx+1}</td>
+      <td><strong style="color:#1f2937">${u.full_name||'—'}</strong></td>
+      <td style="color:#6b7280;font-size:.79rem">${u.username}</td>
+      <td style="font-family:monospace;font-size:.78rem;color:#4f46e5">${u.account_number||'N/A'}</td>
+      <td><strong style="color:#059669">Rs.${bal}</strong></td>
+      <td><span class="badge ${frozen?'badge-frozen':'badge-active'}">${frozen?'Frozen':'Active'}</span></td>
+      <td>
+        ${frozen
+          ? `<button class="btn btn-blue btn-sm" onclick="toggleFreeze('${u.account_number}',false,this)">Unfreeze</button>`
+          : `<button class="btn btn-red btn-sm" onclick="toggleFreeze('${u.account_number}',true,this)">Freeze</button>`}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+window.toggleFreeze = async function(acct, freeze, btn) {
+  console.log("Direct Action Triggered for:", acct); // Check in console
+
+  // CONFIRM POPUP HATAA DIYA HAI TAHR BROWSER BLOCK NA KARE
+  const orig = btn.innerHTML; 
+  btn.disabled = true; 
+  btn.innerHTML = 'Wait...';
+
+  try {
+      const response = await safeFetch('/api/admin/freeze', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ account_number: acct, freeze: freeze })
+      });
+      
+      console.log("Backend Response:", response);
+
+      if (response && response.success) {
+          // Success hone par direct table refresh hogi
+          window.loadUsers(); 
+          if(typeof loadStats === 'function') loadStats(); 
+      } else {
+          alert('❌ Error: ' + (response ? response.message : 'Backend connection failed'));
+          btn.disabled = false;
+          btn.innerHTML = orig;
+      }
+  } catch(error) {
+      console.error("System Error:", error);
+      alert('⚠️ System Error. Check console.');
+      btn.disabled = false;
+      btn.innerHTML = orig;
+  }
+};
+
+async function addMoney(){
+  const acct=document.getElementById('add-account').value.trim();
+  const amt=parseFloat(document.getElementById('add-amount').value);
+  const al=document.getElementById('add-money-alert');
+  if(!acct||!amt||amt<=0){al.className='alert err';al.textContent='Enter valid account and amount.';return;}
+  const d=await safeFetch('/api/admin/add-money',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account_number:acct,amount:amt})});
+  al.className='alert '+(d?.success?'ok':'err');
+  al.textContent=d?.success?`${d.message} | New Balance: Rs.${d.new_balance?.toLocaleString('en-IN')||''}`:'Error: '+(d?.message||'Failed');
+  if(d?.success){document.getElementById('add-account').value='';document.getElementById('add-amount').value='';loadStats();setTimeout(()=>{al.className='alert';al.textContent='';},3500);}
+}
+
+// ── Tickets ────────────────────────────────────────────────────
+window.loadTickets = async function() {
+  const tbody = document.getElementById('tickets-tbody');
+  const d = await safeFetch('/api/support/tickets');
+  const tickets = d?.success ? (d.tickets || []) : [];
+  
+  const pending = tickets.filter(t => t.status === 'Pending').length;
+  const pb = document.getElementById('pending-badge');
+  if (pending > 0) { pb.style.display = 'inline'; pb.textContent = pending; } 
+  else { pb.style.display = 'none'; }
+  
+  if (!tickets.length) { 
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:30px;color:#9ca3af">No tickets yet.</td></tr>'; 
+      return; 
+  }
+  
+  tbody.innerHTML = tickets.map(t => {
+    const bc = {Pending:'badge-pending', Scheduled:'badge-scheduled', Resolved:'badge-resolved'}[t.status] || 'badge-pending';
+    const pref = t.preferred_time ? fmtDt(t.preferred_time) : '<span style="color:#d1d5db">Not specified</span>';
+    const appt = t.appointment_time ? `<span style="color:#059669;font-weight:700">${fmtDt(t.appointment_time)}</span>` : '<span style="color:#d1d5db">—</span>';
+    const userName = t.full_name || t.username || 'User';
+    const tEnc = encodeURIComponent(JSON.stringify(t));
+    
+    // Yahan buttons mein `window.` lagaya gaya hai
+    let actions = `<button class="btn btn-primary btn-sm" onclick="openDrawer('${tEnc}')">${t.status === 'Scheduled' ? 'Chat' : 'Review'}</button>`;
+    if (t.status === 'Scheduled') {
+        actions += ` <button class="btn btn-purple btn-sm" onclick="window.resolveTicket(${t.id})">Resolve</button>`;
+    }
+    
+    return `<tr>
+      <td style="color:#9ca3af;font-size:.78rem">#${t.id}</td>
+      <td style="font-weight:600;color:#1f2937">${userName}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${t.subject}</td>
+      <td style="font-size:.76rem">${pref}</td>
+      <td style="font-size:.76rem">${appt}</td>
+      <td><span class="badge ${bc}">${t.status}</span></td>
+      <td style="white-space:nowrap">${actions}</td>
+    </tr>`;
+  }).join('');
+};
+
+window.resolveTicket = async function(id) {
+  console.log("Resolving ticket ID:", id); // Check in console
+
+  // Direct action karwa rahe hain, bina confirm popup ke
+  const d = await safeFetch('/api/support/resolve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ticket_id: id })
+  });
+
+  if (d?.success) {
+      alert("✅ Ticket Resolved Successfully!");
+      window.loadTickets(); // Table update
+      if (typeof loadStats === 'function') loadStats(); // Dashboard badge update
+      if (activeTicket?.id === id) closeDrawer(); // Agar chat open thi toh band ho jayegi
+  } else {
+      alert('❌ Error: ' + (d?.message || 'Failed to resolve ticket.'));
+  }
+};
+
+// ── Fraud Alerts ───────────────────────────────────────────────
+async function loadFraudAlerts(){
+  const tbody=document.getElementById('fraud-tbody');
+  tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:#9ca3af">Loading...</td></tr>';
+  const d=await safeFetch('/api/admin/fraud-alerts');
+  if(!d||!d.success){
+    tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:20px;color:#ef4444">Failed to load fraud alerts. Check if fraud_alerts table exists in MySQL.</td></tr>';
+    return;
+  }
+  const alerts=d.alerts||[];
+  const unrev=alerts.filter(a=>!a.is_reviewed).length;
+  const fb=document.getElementById('fraud-badge');
+  if(unrev>0){fb.style.display='inline';fb.textContent=unrev;}else fb.style.display='none';
+  if(!alerts.length){tbody.innerHTML='<tr><td colspan="9" style="text-align:center;padding:30px;color:#9ca3af">No fraud alerts. All transactions are clean.</td></tr>';return;}
+  tbody.innerHTML=alerts.map(a=>{
+    const score=a.risk_score||0;
+    const riskCls=score>=80?'badge-high':score>=50?'badge-med':'badge-low';
+    const riskLbl=score>=80?'HIGH '+score:score>=50?'MED '+score:'LOW '+score;
+    const fillClr=score>=80?'#ef4444':score>=50?'#f59e0b':'#10b981';
+    const flags=(a.flags||'').split(',').map(f=>f.trim()).filter(Boolean);
+    const flagHtml=flags.map(f=>`<div style="font-size:.7rem;color:#dc2626;padding:1px 0">${f}</div>`).join('');
+    const rowCls=score>=80?'fraud-row-high':'';
+    const statusHtml=a.is_reviewed
+      ?'<span class="badge badge-reviewed">Reviewed</span>'
+      :`<button class="btn btn-amber btn-sm" onclick="markReviewed(${a.id},this)">Mark Reviewed</button>`;
+    return `<tr class="${rowCls}">
+      <td style="color:#9ca3af;font-size:.78rem">#${a.id}</td>
+      <td><strong style="color:#1f2937">${a.full_name||'—'}</strong><br><span style="color:#9ca3af;font-size:.7rem">${a.username}</span></td>
+      <td style="font-family:monospace;font-size:.78rem;color:#4f46e5">${a.account_number||'N/A'}</td>
+      <td><strong style="color:#dc2626">Rs.${Number(a.amount||0).toLocaleString('en-IN',{minimumFractionDigits:2})}</strong></td>
+      <td>
+        <span class="badge ${riskCls}" style="display:inline-block;margin-bottom:5px">${riskLbl}</span>
+        <div class="risk-bar"><div class="risk-fill" style="width:${Math.min(score,100)}%;background:${fillClr}"></div></div>
+      </td>
+      <td style="max-width:220px">${flagHtml||'<span style="color:#9ca3af;font-size:.75rem">—</span>'}</td>
+      <td style="font-size:.73rem;color:#6b7280;white-space:nowrap">${fmtDt(a.created_at)}</td>
+      <td>${statusHtml}</td>
+      <td><button class="btn btn-red btn-sm" onclick="freezeFromFraud('${a.account_number}',this)">Freeze</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function markReviewed(id,btn){
+  btn.disabled=true; btn.innerHTML='<div class="spinner"></div>';
+  const d=await safeFetch('/api/admin/fraud-review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({alert_id:id})});
+  if(d?.success){loadFraudAlerts();loadStats();}else{btn.disabled=false;btn.innerHTML='Mark Reviewed';}
+}
+
+async function freezeFromFraud(acct,btn){
+  if(!confirm(`Freeze account ${acct}?`))return;
+  btn.disabled=true;
+  const d=await safeFetch('/api/admin/freeze',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({account_number:acct,freeze:true})});
+  if(d?.success){alert('Account frozen successfully.');loadFraudAlerts();loadStats();}
+  else{alert('Error: '+(d?.message||'Failed'));btn.disabled=false;}
+}
+
+// ── Drawer ─────────────────────────────────────────────────────
+function openDrawer(encoded){
+  activeTicket=JSON.parse(decodeURIComponent(encoded));
+  const t=activeTicket;
+  document.getElementById('drawer-title').textContent=t.subject;
+  document.getElementById('drawer-sub').textContent=`Ticket #${t.id} · ${t.full_name||t.username}`;
+  const prefBox=document.getElementById('pref-time-box');
+  if(t.preferred_time){
+    prefBox.style.display='block';
+    document.getElementById('pref-time-val').textContent=fmtDt(t.preferred_time);
+    const dt=new Date(t.preferred_time); dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
+    document.getElementById('appt-input').value=dt.toISOString().slice(0,16);
+  } else prefBox.style.display='none';
+  if(t.appointment_time){
+    const dt=new Date(t.appointment_time); dt.setMinutes(dt.getMinutes()-dt.getTimezoneOffset());
+    document.getElementById('appt-input').value=dt.toISOString().slice(0,16);
+    document.getElementById('approve-btn-txt').textContent='Reschedule';
+  } else document.getElementById('approve-btn-txt').textContent='Approve & Open Chat';
+  document.getElementById('appt-section').style.display=t.status==='Resolved'?'none':'block';
+  const minNow=new Date(); minNow.setMinutes(minNow.getMinutes()-minNow.getTimezoneOffset());
+  document.getElementById('appt-input').min=minNow.toISOString().slice(0,16);
+  const aa=document.getElementById('appt-alert'); aa.className='appt-alert'; aa.textContent='';
+  renderDrawerInput(); loadDrawerMessages();
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('chat-drawer').classList.add('open');
+  clearInterval(drawerPoll);
+  drawerPoll=setInterval(loadDrawerMessages,6000);
+}
+
+function closeDrawer(){
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('chat-drawer').classList.remove('open');
+  clearInterval(drawerPoll); drawerPoll=null;
+}
+
+async function approveAppointment(){
+  const apptTime=document.getElementById('appt-input').value;
+  const alertEl=document.getElementById('appt-alert');
+  if(!apptTime){alertEl.className='appt-alert err';alertEl.textContent='Please select appointment date & time';return;}
+  // Validate: appointment must be in the future
+  const selectedDt = new Date(apptTime);
+  const now = new Date();
+  if(selectedDt <= now){
+    alertEl.className='appt-alert err';
+    alertEl.textContent='Appointment time must be in the future. You cannot schedule a past time!';
+    return;
+  }
+  // Validate: appointment must be after ticket creation time
+  if(activeTicket && activeTicket.created_at){
+    const ticketDt = new Date(activeTicket.created_at);
+    if(selectedDt <= ticketDt){
+      alertEl.className='appt-alert err';
+      alertEl.textContent='Appointment must be AFTER ticket creation time ('+fmtDt(activeTicket.created_at)+')';
+      return;
+    }
+  }
+  const btn=document.getElementById('approve-btn'); btn.disabled=true;
+  document.getElementById('approve-btn-txt').innerHTML='<div class="spinner"></div>';
+  const d=await safeFetch('/api/support/schedule',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket_id:activeTicket.id,appointment_time:apptTime})});
+  if(d?.success){
+    alertEl.className='appt-alert ok'; alertEl.textContent='Appointment approved! Chat is now open.';
+    activeTicket.status='Scheduled'; activeTicket.appointment_time=apptTime;
+    document.getElementById('approve-btn-txt').textContent='Reschedule';
+    renderDrawerInput(); loadTickets(); loadDrawerMessages();
+  } else {
+    alertEl.className='appt-alert err'; alertEl.textContent='Error: '+(d?.message||'Failed');
+    document.getElementById('approve-btn-txt').textContent='Approve & Open Chat';
+  }
+  btn.disabled=false;
+}
+
+function renderDrawerInput(){
+  const c=document.getElementById('drawer-input');
+  if(!activeTicket)return;
+  if(activeTicket.status==='Scheduled'){
+    c.innerHTML=`<div class="chat-input-area">
+      <div class="file-preview" id="mgr-file-preview">
+        <span id="mgr-file-name">Attached file</span>
+        <span class="fp-rm" onclick="mgrRemoveFile()">Remove</span>
+      </div>
+      <div class="input-row">
+        <button class="btn-att" onclick="document.getElementById('mgr-file-input').click()" title="Attach file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+        </button>
+        <textarea id="mgr-msg" rows="1" placeholder="Type reply to user... (Enter to send)"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMgrMsg()}"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+        <button class="btn-snd" id="mgr-snd-btn" onclick="sendMgrMsg()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>`;
+  } else if(activeTicket.status==='Pending'){
+    c.innerHTML=`<div class="locked-chat">Approve the appointment above to unlock chat for both sides</div>`;
+  } else {
+    c.innerHTML=`<div class="locked-chat">Ticket resolved. Chat is closed.</div>`;
+  }
+}
+
+async function loadDrawerMessages(){
+  if(!activeTicket)return;
+  const d=await safeFetch('/api/support/messages/'+activeTicket.id);
+  if(d?.success) renderDrawerMessages(d.messages||[]);
+}
+
+function renderDrawerMessages(msgs){
+  const c=document.getElementById('drawer-messages');
+  if(!msgs.length){c.innerHTML='<div style="text-align:center;padding:30px;color:#9ca3af;font-size:.8rem">No messages yet. Start the conversation!</div>';return;}
+  const myId=mgrUser?.id;
+  const atBtm=c.scrollHeight-c.scrollTop<=c.clientHeight+60;
+  c.innerHTML=msgs.map(m=>{
+    const isMe=m.sender_id===myId;
+    const cls=isMe?'me':'them';
+    const avt=(m.full_name||'U').charAt(0).toUpperCase();
+    const lbl=isMe?'Manager':(m.full_name||'User');
+    let fHtml='';
+    if(m.file_url){
+      const isImg=/\.(jpg|jpeg|png|gif|webp)$/i.test(m.file_url);
+      fHtml=isImg?`<img src="${m.file_url}" class="msg-img" onclick="window.open('${m.file_url}','_blank')">`:`<a href="${m.file_url}" target="_blank" download class="msg-doc">${m.file_url.split('/').pop()}</a>`;
+    }
+    return `<div class="msg-row ${cls}">
+      <div class="msg-av">${avt}</div>
+      <div class="msg-bubble">
+        <div class="mb-name">${lbl}</div>
+        ${m.message_text?`<div class="mb-text">${m.message_text}</div>`:''}
+        ${fHtml}
+        <div class="mb-time">${fmtTime(m.created_at)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  if(atBtm)c.scrollTop=c.scrollHeight;
+}
+
+async function sendMgrMsg(){
+  const inp=document.getElementById('mgr-msg');
+  const text=inp?.value.trim()||'';
+  if(!text&&!mgrFile)return;
+  const btn=document.getElementById('mgr-snd-btn'); if(btn)btn.disabled=true;
+  let fileData=null;
+  if(mgrFile)fileData=await toB64(mgrFile);
+  const d=await safeFetch('/api/support/message',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ticket_id:activeTicket.id,message_text:text,file_data:fileData})});
+  if(d?.success){if(inp)inp.value='';mgrRemoveFile();loadDrawerMessages();}
+  if(btn)btn.disabled=false;
+}
+
+function mgrFileChosen(inp){
+  if(!inp.files.length)return;
+  mgrFile=inp.files[0];
+  const bar=document.getElementById('mgr-file-preview');
+  const nm=document.getElementById('mgr-file-name');
+  if(bar){bar.style.display='flex';nm.textContent=mgrFile.name+' ('+(mgrFile.size/1024).toFixed(1)+'KB)';}
+}
+function mgrRemoveFile(){mgrFile=null;document.getElementById('mgr-file-input').value='';const b=document.getElementById('mgr-file-preview');if(b)b.style.display='none';}
+function toB64(file){return new Promise((res,rej)=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=rej;r.readAsDataURL(file);});}
+
+function fmtDt(iso){if(!iso)return'';try{return new Date(iso).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true});}catch(e){return iso;}}
+function fmtTime(iso){if(!iso)return'';try{return new Date(iso).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});}catch(e){return'';}}
+function doLogout(){fetch('/api/logout',{method:'POST',credentials:'include'}).catch(()=>{});localStorage.removeItem('be_user');window.location.href='/login.html';}
+
+// Update page title on tab switch
+const tabTitles = {
+  dashboard: {text:'Dashboard', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>'},
+  users:     {text:'Users', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>'},
+  support:   {text:'Support Tickets', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>'},
+  fraud:     {text:'Fraud Alerts', svg:'<svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/></svg>'}
+};
+const origSwitch = switchTab;
+// Patch switchTab to also update topbar title + sidebar active
+const _origSwitch = switchTab;
+window.switchTab = function(tab) {
+  _origSwitch(tab);
+  const t = tabTitles[tab];
+  if(t) document.getElementById('page-title').innerHTML = t.svg + ' ' + t.text;
+  // Update sidebar active
+  ['dashboard','users','support','fraud'].forEach(k=>{
+    document.getElementById('tab-btn-'+k).classList.toggle('active', k===tab);
+  });
+};
+// Also update mgr-name-top when profile loads
+const _origProfile = loadMgrProfile;
+window.loadMgrProfile = async function(){
+  await _origProfile();
+  if(mgrUser){
+    const nm = mgrUser.full_name||'Manager';
+    const top = document.getElementById('mgr-name-top');
+    if(top) top.textContent = nm;
+    const av = document.getElementById('mgr-avatar');
+    if(av) av.textContent = nm.charAt(0).toUpperCase();
+  }
+};
+</script>
+</body>
+</html>

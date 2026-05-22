@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>BankEase – Support Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:#f0f2ff;min-height:100vh;display:flex}
+.sidebar{width:270px;min-height:100vh;background:linear-gradient(180deg,#1e1b4b,#312e81);
+  display:flex;flex-direction:column;flex-shrink:0;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.sidebar-brand{padding:22px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+.sidebar-brand .ico{width:40px;height:40px;background:rgba(255,255,255,.15);border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem}
+.sidebar-brand .name{color:#fff;font-size:1.15rem;font-weight:800}
+.user-card{padding:16px 14px;margin:10px;background:rgba(255,255,255,.08);border-radius:12px;
+  display:flex;align-items:center;gap:10px}
+.user-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);
+  display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:.95rem;flex-shrink:0}
+.user-info .uname{color:#fff;font-size:.85rem;font-weight:700;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-info .urole{color:rgba(255,255,255,.5);font-size:.7rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:160px}
+.nav{padding:6px 10px;flex:1}
+.nav a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;
+  color:rgba(255,255,255,.65);text-decoration:none;font-size:.85rem;font-weight:600;transition:.15s;margin-bottom:2px}
+.nav a:hover{background:rgba(255,255,255,.1);color:#fff}
+.nav a.active{background:rgba(99,102,241,.4);color:#fff}
+.nav a .ni{font-size:1rem;width:20px;text-align:center}
+.main{margin-left:270px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;padding:14px 24px;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:50}
+.topbar h1{font-size:1.1rem;font-weight:800;color:#1e1b4b}
+.topbar .sub{font-size:.74rem;color:#9ca3af;margin-top:2px}
+.content{display:grid;grid-template-columns:370px 1fr;flex:1;overflow:hidden;height:calc(100vh - 61px)}
+.left-panel{background:#fff;border-right:2px solid #e5e7eb;display:flex;flex-direction:column;overflow:hidden}
+.panel-section{padding:16px 18px;border-bottom:1px solid #f3f4f6}
+.panel-section h3{font-size:.74rem;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.form-group{margin-bottom:10px}
+.form-group label{display:block;font-size:.72rem;font-weight:700;color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.form-group select,.form-group input,.form-group textarea{width:100%;padding:9px 11px;border:2px solid #e5e7eb;
+  border-radius:10px;font-size:.84rem;font-family:'Inter',sans-serif;outline:none;color:#1f2937;transition:.15s}
+.form-group select:focus,.form-group input:focus,.form-group textarea:focus{border-color:#6366f1;box-shadow:0 0 0 3px rgba(99,102,241,.08)}
+.form-group textarea{resize:vertical;min-height:60px}
+.time-picker-label{display:flex;align-items:center;gap:6px;font-size:.72rem;font-weight:700;
+  color:#6b7280;margin-bottom:4px;text-transform:uppercase;letter-spacing:.3px}
+.time-picker-label .required{color:#ef4444;font-size:.8rem}
+.btn-submit{width:100%;padding:11px;background:linear-gradient(135deg,#4f46e5,#6366f1);
+  color:#fff;border:none;border-radius:10px;font-size:.87rem;font-weight:700;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:'Inter',sans-serif;transition:.2s;margin-top:4px}
+.btn-submit:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(99,102,241,.35)}
+.btn-submit:disabled{opacity:.6;transform:none;cursor:not-allowed}
+.alert{padding:9px 12px;border-radius:8px;font-size:.78rem;font-weight:600;margin-bottom:8px;display:none}
+.alert.ok{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;display:block}
+.alert.err{background:#fef2f2;color:#dc2626;border:1px solid #fecaca;display:block}
+.alert.info{background:#eef2ff;color:#4f46e5;border:1px solid #c7d2fe;display:block}
+.tickets-list{flex:1;overflow-y:auto;padding:10px}
+.ticket-item{padding:12px 14px;border-radius:10px;border:2px solid #e5e7eb;margin-bottom:8px;cursor:pointer;transition:.15s}
+.ticket-item:hover{border-color:#a5b4fc;background:#fafafe}
+.ticket-item.active{border-color:#6366f1;background:#eef2ff}
+.ti-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:5px}
+.ti-subject{font-size:.83rem;font-weight:700;color:#1f2937;flex:1;line-height:1.3}
+.ti-badge{padding:2px 7px;border-radius:20px;font-size:.64rem;font-weight:700;text-transform:uppercase;flex-shrink:0}
+.badge-pending{background:#fef3c7;color:#d97706}
+.badge-scheduled{background:#d1fae5;color:#065f46}
+.badge-resolved{background:#e0e7ff;color:#4338ca}
+.ti-meta{font-size:.7rem;color:#9ca3af;margin-top:3px}
+.ti-preferred{font-size:.71rem;color:#7c3aed;font-weight:600;margin-top:3px;
+  background:#f5f3ff;padding:2px 7px;border-radius:5px;display:inline-block}
+.ti-appt{font-size:.71rem;color:#059669;font-weight:700;margin-top:3px;
+  background:#ecfdf5;padding:3px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:4px}
+.empty-state{text-align:center;padding:40px 16px;color:#9ca3af}
+.empty-state .es-ico{font-size:2.2rem;margin-bottom:8px}
+.empty-state p{font-size:.8rem;line-height:1.5}
+/* Right panel */
+.right-panel{display:flex;flex-direction:column;background:#f8fafc;overflow:hidden}
+.welcome-screen{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:40px}
+.welcome-screen .ws-ico{font-size:3.5rem}
+.welcome-screen h2{font-size:1.15rem;font-weight:800;color:#1f2937}
+.welcome-screen p{font-size:.82rem;color:#9ca3af;text-align:center;max-width:280px;line-height:1.5}
+.chat-header{background:#fff;padding:14px 18px;border-bottom:1px solid #e5e7eb;display:flex;
+  align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ch-info h3{font-size:.9rem;font-weight:800;color:#1f2937;display:flex;align-items:center;gap:8px}
+.ch-info p{font-size:.72rem;color:#6b7280;margin-top:2px}
+.appt-banner{padding:9px 14px;border-radius:10px;font-size:.78rem;font-weight:600;
+  display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap}
+.appt-banner.green{background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46}
+.appt-banner.orange{background:#fff7ed;border:1px solid #fed7aa;color:#c2410c}
+.appt-banner.blue{background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca}
+.chat-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px}
+.msg-row{display:flex;gap:8px;max-width:78%}
+.msg-row.me{align-self:flex-end;flex-direction:row-reverse}
+.msg-row.them{align-self:flex-start}
+.msg-avatar{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:.72rem;font-weight:800;flex-shrink:0;margin-top:4px}
+.msg-row.me .msg-avatar{background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff}
+.msg-row.them .msg-avatar{background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff}
+.msg-bubble{background:#fff;border-radius:14px;padding:9px 13px;box-shadow:0 1px 4px rgba(0,0,0,.06);max-width:100%}
+.msg-row.me .msg-bubble{background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff}
+.mb-name{font-size:.65rem;font-weight:700;color:#6b7280;margin-bottom:3px}
+.msg-row.me .mb-name{color:rgba(255,255,255,.7)}
+.mb-text{font-size:.83rem;line-height:1.5;word-break:break-word}
+.mb-time{font-size:.62rem;margin-top:3px;text-align:right;color:rgba(255,255,255,.55)}
+.msg-row.them .mb-time{color:#9ca3af}
+.msg-file-img{max-width:180px;border-radius:8px;display:block;margin-top:6px;cursor:pointer}
+.msg-file-doc{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:600;
+  background:rgba(255,255,255,.2);padding:6px 10px;border-radius:8px;margin-top:6px;
+  text-decoration:none;color:inherit}
+.msg-row.them .msg-file-doc{background:#f3f4f6;color:#374151}
+.chat-input-area{background:#fff;border-top:1px solid #e5e7eb;padding:12px 14px}
+.locked-msg{text-align:center;padding:14px;color:#9ca3af;font-size:.8rem;background:#f9fafb;border-top:1px solid #e5e7eb;line-height:1.5}
+.file-preview-bar{background:#eef2ff;border-radius:8px;padding:7px 11px;margin-bottom:8px;
+  display:none;align-items:center;justify-content:space-between;font-size:.76rem;font-weight:600;color:#4f46e5}
+.fp-remove{cursor:pointer;color:#ef4444;padding:0 4px}
+.input-row{display:flex;gap:8px;align-items:flex-end}
+.input-row textarea{flex:1;padding:9px 12px;border:2px solid #e5e7eb;border-radius:10px;
+  font-size:.85rem;font-family:'Inter',sans-serif;outline:none;resize:none;max-height:100px;
+  overflow-y:auto;transition:.15s;color:#1f2937}
+.input-row textarea:focus{border-color:#6366f1}
+.btn-attach{width:36px;height:36px;border-radius:9px;border:2px solid #e5e7eb;background:#f9fafb;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;transition:.15s;flex-shrink:0}
+.btn-attach:hover{border-color:#6366f1;background:#eef2ff}
+.btn-send{width:36px;height:36px;border-radius:9px;border:none;
+  background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.95rem;
+  transition:.2s;flex-shrink:0}
+.btn-send:hover{transform:scale(1.05)}
+.btn-send:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.spinner{width:15px;height:15px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-thumb{background:#c7d2fe;border-radius:10px}
+#file-input{display:none}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-brand">
+    <div class="ico">🏦</div>
+    <div class="name">BankEase</div>
+  </div>
+  <div class="user-card">
+    <div class="user-avatar" id="sb-avatar">U</div>
+    <div class="user-info">
+      <div class="uname" id="sb-name">Loading...</div>
+      <div class="urole" id="sb-role">user@email.com</div>
+    </div>
+  </div>
+  <nav class="nav">
+    <a href="/dashboard.html"><span class="ni">🏠</span> Dashboard</a>
+    <a href="/statement.html"><span class="ni">📋</span> Statements</a>
+    <a href="/profile.html"><span class="ni">👤</span> Profile</a>
+    <a href="/chatbot.html"><span class="ni">🤖</span> AI Assistant</a>
+    <a href="/support.html" class="active"><span class="ni">🎫</span> Support</a>
+  </nav>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <h1>🎫 Support Center</h1>
+    <div class="sub">Submit request → Pick appointment time → Manager approves → Chat opens</div>
+  </div>
+  <div class="content">
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <div class="panel-section">
+        <h3>📝 New Support Request</h3>
+        <div id="submit-alert"></div>
+        <div class="form-group">
+          <label>Category</label>
+          <select id="ticket-category">
+            <option>General Inquiry</option>
+            <option>Account Issue</option>
+            <option>Transaction Problem</option>
+            <option>Loan Request</option>
+            <option>Fraud Report</option>
+            <option>Card Issue</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Description (optional)</label>
+          <textarea id="ticket-desc" placeholder="Briefly describe your issue..."></textarea>
+        </div>
+        <div class="form-group">
+          <div class="time-picker-label">
+            📅 Preferred Appointment Date & Time <span class="required">*</span>
+          </div>
+          <input type="datetime-local" id="preferred-time" 
+            style="cursor:pointer" min="">
+          <div style="font-size:.68rem;color:#9ca3af;margin-top:4px">
+            ⚠️ Manager will confirm or reschedule based on availability
+          </div>
+        </div>
+        <button class="btn-submit" id="submit-btn" onclick="submitTicket()">
+          <span id="submit-btn-txt">📤 Submit Request</span>
+        </button>
+      </div>
+      <div style="padding:12px 18px 4px;font-size:.72rem;font-weight:800;color:#374151;text-transform:uppercase;letter-spacing:.5px">
+        Your Tickets
+      </div>
+      <div class="tickets-list" id="tickets-list">
+        <div class="empty-state"><div class="es-ico">⌛</div><p>Loading...</p></div>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel" id="right-panel">
+      <div class="welcome-screen" id="welcome-screen">
+        <div class="ws-ico">💬</div>
+        <h2>Select a ticket to chat</h2>
+        <p>Once a manager approves your appointment, chat will unlock here for you to talk and share documents.</p>
+      </div>
+      <div id="chat-view" style="display:none;flex-direction:column;flex:1;overflow:hidden">
+        <div class="chat-header" id="chat-header"></div>
+        <div class="chat-messages" id="chat-messages"></div>
+        <div id="chat-input-container"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<input type="file" id="file-input" accept="image/*,.pdf,.doc,.docx,.xlsx" onchange="fileSelected(this)">
+
+<script>
+let currentUser = null, currentTicket = null, pollInterval = null, selectedFile = null;
+
+// Set min datetime to now
+const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+document.getElementById('preferred-time').min = now.toISOString().slice(0,16);
+
+document.addEventListener('DOMContentLoaded', () => { loadUser(); loadTickets(); });
+
+// ─── Load User ─────────────────────────────────────────────────────────────
+function loadUser() {
+  try {
+    const s = localStorage.getItem('be_user');
+    if (s) {
+      currentUser = JSON.parse(s);
+      updateSidebar();
+      return;
+    }
+  } catch(e) {}
+  fetch('/api/profile', {credentials:'include'})
+    .then(r => r.json())
+    .then(d => {
+      if (d.success) { currentUser = d.user; localStorage.setItem('be_user', JSON.stringify(d.user)); updateSidebar(); }
+      else window.location.href = '/login.html';
+    }).catch(() => window.location.href = '/login.html');
+}
+
+function updateSidebar() {
+  if (!currentUser) return;
+  const name = currentUser.full_name || currentUser.username || 'User';
+  const email = currentUser.email || currentUser.username || '';
+  document.getElementById('sb-name').textContent = name;
+  document.getElementById('sb-role').textContent = email;
+  document.getElementById('sb-avatar').textContent = name.charAt(0).toUpperCase();
+}
+
+// ─── Submit Ticket ──────────────────────────────────────────────────────────
+async function submitTicket() {
+  const cat = document.getElementById('ticket-category').value;
+  const desc = document.getElementById('ticket-desc').value.trim();
+  const prefTime = document.getElementById('preferred-time').value;
+  if (!prefTime) { showAlert('submit-alert','err','⚠️ Please select a preferred appointment date & time'); return; }
+  const subject = desc ? cat + ': ' + desc : cat;
+  const btn = document.getElementById('submit-btn');
+  const btnTxt = document.getElementById('submit-btn-txt');
+  btn.disabled = true; btnTxt.innerHTML = '<div class="spinner"></div>';
+  hideAlert('submit-alert');
+  try {
+    const res = await fetch('/api/support/request', {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+      body: JSON.stringify({ subject, preferred_time: prefTime })
+    });
+    const d = await res.json();
+    if (d.success) {
+      showAlert('submit-alert','ok','✅ Request submitted! Manager will review shortly.');
+      document.getElementById('ticket-desc').value = '';
+      document.getElementById('preferred-time').value = '';
+      setTimeout(() => { hideAlert('submit-alert'); loadTickets(); }, 2500);
+    } else { showAlert('submit-alert','err','❌ ' + d.message); }
+  } catch(e) { showAlert('submit-alert','err','❌ Network error. Try again.'); }
+  btn.disabled = false; btnTxt.textContent = '📤 Submit Request';
+}
+
+// ─── Load & Render Tickets ──────────────────────────────────────────────────
+async function loadTickets() {
+  try {
+    const res = await fetch('/api/support/tickets', {credentials:'include'});
+    const d = await res.json();
+    renderTickets(d.success ? d.tickets || [] : []);
+    if (currentTicket) {
+      const up = (d.tickets||[]).find(t => t.id === currentTicket.id);
+      if (up && up.status !== currentTicket.status) { currentTicket = up; renderChatView(); }
+    }
+  } catch(e) { renderTickets([]); }
+}
+
+function renderTickets(tickets) {
+  const list = document.getElementById('tickets-list');
+  if (!tickets.length) {
+    list.innerHTML = '<div class="empty-state"><div class="es-ico">🎫</div><p>No tickets yet.<br>Submit a request above!</p></div>';
+    return;
+  }
+  list.innerHTML = tickets.map(t => {
+    const bc = {Pending:'badge-pending',Scheduled:'badge-scheduled',Resolved:'badge-resolved'}[t.status]||'badge-pending';
+    const isActive = currentTicket && currentTicket.id === t.id ? 'active' : '';
+    const prefLine = t.preferred_time
+      ? `<div class="ti-preferred">🕐 Requested: ${fmtDate(t.preferred_time)}</div>` : '';
+    const apptLine = t.appointment_time
+      ? `<div class="ti-appt">✅ Confirmed: ${fmtDate(t.appointment_time)}</div>` : '';
+    const tData = encodeURIComponent(JSON.stringify(t));
+    return `<div class="ticket-item ${isActive}" onclick="selectTicket('${tData}')">
+      <div class="ti-top">
+        <div class="ti-subject">${t.subject}</div>
+        <span class="ti-badge ${bc}">${t.status}</span>
+      </div>
+      ${prefLine}${apptLine}
+      <div class="ti-meta">📌 #${t.id} · ${fmtDate(t.created_at)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Select Ticket ──────────────────────────────────────────────────────────
+function selectTicket(encoded) {
+  currentTicket = JSON.parse(decodeURIComponent(encoded));
+  document.getElementById('welcome-screen').style.display = 'none';
+  document.getElementById('chat-view').style.display = 'flex';
+  document.querySelectorAll('.ticket-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+  renderChatView(); loadMessages();
+  clearInterval(pollInterval);
+  pollInterval = setInterval(() => { loadMessages(); checkStatus(); }, 7000);
+}
+
+async function checkStatus() {
+  if (!currentTicket) return;
+  const res = await fetch('/api/support/tickets', {credentials:'include'});
+  const d = await res.json();
+  if (d.success) {
+    const up = (d.tickets||[]).find(t => t.id === currentTicket.id);
+    if (up && (up.status !== currentTicket.status || up.appointment_time !== currentTicket.appointment_time)) {
+      currentTicket = up; renderChatView(); renderTickets(d.tickets);
+    }
+  }
+}
+
+// ─── Render Chat View ───────────────────────────────────────────────────────
+function renderChatView() {
+  const t = currentTicket;
+  const bc = {Pending:'badge-pending',Scheduled:'badge-scheduled',Resolved:'badge-resolved'}[t.status]||'badge-pending';
+  let bannerHtml = '';
+  if (t.status === 'Scheduled' && t.appointment_time) {
+    bannerHtml = `<div class="appt-banner green">✅ Appointment confirmed: <strong>${fmtDate(t.appointment_time)}</strong> — Chat is open!</div>`;
+  } else if (t.status === 'Pending' && t.preferred_time) {
+    bannerHtml = `<div class="appt-banner orange">⏳ Waiting for manager to confirm your requested time: <strong>${fmtDate(t.preferred_time)}</strong></div>`;
+  } else if (t.status === 'Pending') {
+    bannerHtml = `<div class="appt-banner orange">⏳ Waiting for manager to schedule appointment</div>`;
+  } else if (t.status === 'Resolved') {
+    bannerHtml = `<div class="appt-banner blue">✅ Ticket resolved</div>`;
+  }
+
+  document.getElementById('chat-header').innerHTML = `
+    <div>
+      <div class="ch-info">
+        <h3>${t.subject} <span class="ti-badge ${bc}">${t.status}</span></h3>
+        <p>Ticket #${t.id} · Submitted ${fmtDate(t.created_at)}</p>
+      </div>
+      ${bannerHtml}
+    </div>`;
+
+  const inputContainer = document.getElementById('chat-input-container');
+  if (t.status === 'Scheduled') {
+    inputContainer.innerHTML = `
+      <div class="chat-input-area">
+        <div class="file-preview-bar" id="file-preview-bar">
+          <span id="file-preview-name">📎 file</span>
+          <span class="fp-remove" onclick="removeFile()">✕</span>
+        </div>
+        <div class="input-row">
+          <button class="btn-attach" onclick="document.getElementById('file-input').click()" title="Attach file">📎</button>
+          <textarea id="msg-input" rows="1" placeholder="Type your message... (Enter to send)"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+            oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,100)+'px'"></textarea>
+          <button class="btn-send" id="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+      </div>`;
+  } else if (t.status === 'Pending') {
+    inputContainer.innerHTML = `
+      <div class="locked-msg">
+        🔒 Chat will unlock once manager approves your appointment request
+      </div>`;
+  } else {
+    inputContainer.innerHTML = `
+      <div class="locked-msg">
+        ✅ This ticket is resolved. <a href="#" onclick="window.location.reload()" style="color:#4f46e5;font-weight:700">Raise a new ticket?</a>
+      </div>`;
+  }
+}
+
+// ─── Messages ───────────────────────────────────────────────────────────────
+async function loadMessages() {
+  if (!currentTicket) return;
+  try {
+    const res = await fetch('/api/support/messages/' + currentTicket.id, {credentials:'include'});
+    const d = await res.json();
+    if (d.success) renderMessages(d.messages || []);
+  } catch(e) {}
+}
+
+function renderMessages(messages) {
+  const c = document.getElementById('chat-messages');
+  if (!messages.length) {
+    c.innerHTML = '<div style="text-align:center;padding:40px;color:#9ca3af;font-size:.82rem">💬 No messages yet. Say hello!</div>';
+    return;
+  }
+  const myId = currentUser?.id;
+  const atBottom = c.scrollHeight - c.scrollTop <= c.clientHeight + 60;
+  c.innerHTML = messages.map(m => {
+    const isMe = m.sender_id === myId;
+    const cls = isMe ? 'me' : 'them';
+    const avt = (m.full_name || 'U').charAt(0).toUpperCase();
+    const roleLabel = m.role === 'manager' ? '🛡️ Manager' : (m.full_name || 'You');
+    let fileHtml = '';
+    if (m.file_url) {
+      const isImg = /\.(jpg|jpeg|png|gif|webp)$/i.test(m.file_url);
+      fileHtml = isImg
+        ? `<img src="${m.file_url}" class="msg-file-img" onclick="window.open('${m.file_url}','_blank')">`
+        : `<a href="${m.file_url}" target="_blank" download class="msg-file-doc">📄 ${m.file_url.split('/').pop()}</a>`;
+    }
+    return `<div class="msg-row ${cls}">
+      <div class="msg-avatar">${avt}</div>
+      <div class="msg-bubble">
+        <div class="mb-name">${roleLabel}</div>
+        ${m.message_text ? `<div class="mb-text">${m.message_text}</div>` : ''}
+        ${fileHtml}
+        <div class="mb-time">${fmtTime(m.created_at)}</div>
+      </div>
+    </div>`;
+  }).join('');
+  if (atBottom) c.scrollTop = c.scrollHeight;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('msg-input');
+  const text = input?.value.trim() || '';
+  if (!text && !selectedFile) return;
+  const btn = document.getElementById('send-btn');
+  if (btn) btn.disabled = true;
+  let fileData = null;
+  if (selectedFile) fileData = await toBase64(selectedFile);
+  try {
+    const res = await fetch('/api/support/message', {
+      method:'POST', headers:{'Content-Type':'application/json'}, credentials:'include',
+      body: JSON.stringify({ticket_id: currentTicket.id, message_text: text, file_data: fileData})
+    });
+    const d = await res.json();
+    if (d.success) { if(input) input.value=''; removeFile(); loadMessages(); }
+  } catch(e) {}
+  if(btn) btn.disabled = false;
+}
+
+// ─── File ────────────────────────────────────────────────────────────────────
+function fileSelected(inp) {
+  if (!inp.files.length) return;
+  selectedFile = inp.files[0];
+  const bar = document.getElementById('file-preview-bar');
+  const name = document.getElementById('file-preview-name');
+  if (bar) { bar.style.display = 'flex'; name.textContent = '📎 '+selectedFile.name+' ('+(selectedFile.size/1024).toFixed(1)+'KB)'; }
+}
+function removeFile() {
+  selectedFile = null;
+  document.getElementById('file-input').value = '';
+  const bar = document.getElementById('file-preview-bar');
+  if (bar) bar.style.display = 'none';
+}
+function toBase64(file) {
+  return new Promise((res,rej) => { const r = new FileReader(); r.onload = e => res(e.target.result); r.onerror = rej; r.readAsDataURL(file); });
+}
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+function fmtDate(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleString('en-IN',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',hour12:true}); }
+  catch(e) { return iso; }
+}
+function fmtTime(iso) {
+  if (!iso) return '';
+  try { return new Date(iso).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true}); }
+  catch(e) { return ''; }
+}
+function showAlert(id,type,msg){const e=document.getElementById(id);if(e){e.className='alert '+type;e.textContent=msg;}}
+function hideAlert(id){const e=document.getElementById(id);if(e){e.className='alert';e.textContent='';}}
+</script>
+</body>
+</html>

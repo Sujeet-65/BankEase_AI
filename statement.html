@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"><title>BankEase – Statement</title>
+<style>
+  :root{--p:#6366f1;--d:#4f46e5;--dk:#1e1b4b;--l:#eef2ff;--err:#ef4444;--ok:#10b981;--warn:#f59e0b}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter',sans-serif;background:#f8f9ff;display:flex;min-height:100vh;color:#1f2937}
+  /* Sidebar */
+  .sidebar{width:260px;background:linear-gradient(180deg,var(--dk),#312e81);min-height:100vh;padding:0 0 32px;display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh}
+  .sb-logo{display:flex;align-items:center;gap:10px;padding:24px 24px 20px;font-size:1.25rem;font-weight:800;color:#fff;border-bottom:1px solid rgba(255,255,255,.1)}
+  .sb-logo .icon{width:36px;height:36px;background:rgba(99,102,241,.4);border-radius:10px;display:flex;align-items:center;justify-content:center}
+  .sb-user{padding:16px 24px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:12px}
+  .sb-avatar{width:40px;height:40px;background:linear-gradient(135deg,var(--p),var(--d));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1rem;color:#fff;font-weight:700;flex-shrink:0;overflow:hidden}
+  .sb-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+  .sb-name{color:#fff;font-weight:600;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sb-role{color:rgba(255,255,255,.5);font-size:.75rem}
+  nav.sb-nav{flex:1;padding:0 12px}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;color:rgba(255,255,255,.7);text-decoration:none;font-size:.9rem;font-weight:500;transition:all .2s;margin-bottom:4px}
+  .nav-item:hover,.nav-item.active{background:rgba(255,255,255,.12);color:#fff}
+  .nav-item.active{background:rgba(99,102,241,.35);color:#fff}
+  .nav-item .ni{font-size:1.1rem;width:20px;text-align:center}
+  .sb-logout{margin:0 12px;padding:11px 14px;border-radius:12px;color:rgba(255,255,255,.6);background:none;border:none;font-size:.9rem;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:12px;width:calc(100% - 24px);transition:.2s}
+  .sb-logout:hover{background:rgba(239,68,68,.2);color:#fca5a5}
+  /* Main */
+  .main{flex:1;padding:32px 36px;overflow-y:auto}
+  .page-title{font-size:1.6rem;font-weight:800;color:var(--dk);margin-bottom:4px}
+  .page-sub{color:#6b7280;font-size:.9rem;margin-bottom:32px}
+  /* Cards */
+  .card{background:#fff;border-radius:20px;padding:28px;box-shadow:0 2px 16px rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.08)}
+  .card-sm{background:#fff;border-radius:16px;padding:20px;box-shadow:0 2px 12px rgba(99,102,241,.06);border:1px solid rgba(99,102,241,.06)}
+  /* Grid */
+  .grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+  .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  /* Form */
+  label{display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:5px}
+  input,select,textarea{width:100%;padding:11px 14px;border:2px solid #e5e7eb;border-radius:10px;font-size:.92rem;font-family:'Inter',sans-serif;outline:none;transition:border .2s;color:#1f2937}
+  input:focus,select:focus,textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(99,102,241,.1)}
+  .field{margin-bottom:16px}
+  .btn{padding:10px 22px;border-radius:10px;font-weight:600;font-size:.88rem;cursor:pointer;border:none;transition:.25s;display:inline-flex;align-items:center;gap:7px}
+  .btn-p{background:linear-gradient(135deg,var(--p),var(--d));color:#fff;box-shadow:0 4px 12px rgba(99,102,241,.3)}
+  .btn-p:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(99,102,241,.4)}
+  .btn-outline{border:2px solid var(--p);color:var(--p);background:transparent}
+  .btn-danger{background:#fef2f2;color:var(--err);border:1px solid #fecaca}
+  .btn-danger:hover{background:var(--err);color:#fff}
+  .btn-ok{background:#f0fdf4;color:var(--ok);border:1px solid #bbf7d0}
+  .btn-ok:hover{background:var(--ok);color:#fff}
+  /* Badges */
+  .badge{padding:3px 10px;border-radius:50px;font-size:.75rem;font-weight:600}
+  .badge-ok{background:#f0fdf4;color:var(--ok)}
+  .badge-err{background:#fef2f2;color:var(--err)}
+  .badge-warn{background:#fffbeb;color:var(--warn)}
+  .badge-blue{background:var(--l);color:var(--p)}
+  /* Alert */
+  .alert{padding:12px 16px;border-radius:10px;font-size:.88rem;font-weight:500;margin-bottom:16px;display:none}
+  .alert.show{display:block}
+  .alert.err{background:#fef2f2;color:var(--err);border:1px solid #fecaca}
+  .alert.ok{background:#f0fdf4;color:var(--ok);border:1px solid #bbf7d0}
+  /* Table */
+  .table-wrap{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:.875rem}
+  th{background:#f9fafb;color:#374151;font-weight:600;padding:12px 16px;text-align:left;border-bottom:2px solid #e5e7eb;white-space:nowrap}
+  td{padding:12px 16px;border-bottom:1px solid #f3f4f6;color:#4b5563;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:#fafafa}
+  /* Modal */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+  .overlay.open{display:flex}
+  .modal{background:#fff;border-radius:20px;padding:32px;max-width:460px;width:100%;box-shadow:0 24px 80px rgba(0,0,0,.2)}
+  .modal h3{font-size:1.2rem;font-weight:700;color:var(--dk);margin-bottom:20px}
+  @media(max-width:768px){.sidebar{width:64px}.sb-name,.sb-role,.sb-user .sb-name,.sb-user .sb-role,.sb-logo span,.nav-item span,.sb-logout span{display:none}.main{padding:20px 16px}}
+
+  .filter-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin-bottom:24px}
+  .filter-bar .field{margin:0;min-width:160px}
+  .filter-bar label{font-size:.78rem}
+  .empty-state{text-align:center;padding:60px 20px;color:#9ca3af}
+  .empty-state .es-icon{font-size:3.5rem;margin-bottom:16px}
+  .cr-row td:last-child{color:var(--ok);font-weight:700}
+  .db-row td:last-child{color:var(--err);font-weight:700}
+  .export-btn{display:flex;align-items:center;gap:7px}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="sb-logo"><div class="icon">🏦</div><span>BankEase</span></div>
+  <div class="sb-user">
+    <div class="sb-avatar" id="sb-avatar">U</div>
+    <div><div class="sb-name" id="sb-name">Loading...</div><div class="sb-role" id="sb-role">User</div></div>
+  </div>
+  <nav class="sb-nav">
+      <a href="/dashboard.html" class="nav-item ACTIVE_D"><span class="ni">🏠</span><span>Dashboard</span></a>
+      <a href="/statement.html" class="nav-item active"><span class="ni">📋</span><span>Statements</span></a>
+      <a href="/profile.html" class="nav-item ACTIVE_P"><span class="ni">👤</span><span>Profile</span></a>
+      <a href="/chatbot.html" class="nav-item ACTIVE_C"><span class="ni">🤖</span><span>AI Assistant</span></a>
+      <a href="/support.html" class="nav-item activeU"><span class="ni">🎫</span><span>Support</span></a>
+    </nav>
+  <button class="sb-logout" onclick="logout()"><span class="ni">🚪</span><span>Logout</span></button>
+</div>
+<div class="main">
+  <div class="page-title">Account Statement</div>
+  <div class="page-sub">View and filter your complete transaction history.</div>
+  <div class="card">
+    <div class="filter-bar">
+      <div class="field"><label>Type</label>
+        <select id="f-type" onchange="filter()"><option value="">All</option><option value="credit">Credit</option><option value="debit">Debit</option></select>
+      </div>
+      <div class="field"><label>From Date</label><input type="date" id="f-from" onchange="filter()"></div>
+      <div class="field"><label>To Date</label><input type="date" id="f-to" onchange="filter()"></div>
+      <div class="field"><label>Search</label><input type="text" id="f-search" placeholder="Name / account..." oninput="filter()"></div>
+      <button class="btn btn-p export-btn" onclick="exportCSV()">⬇️ Export CSV</button>
+    </div>
+    <div id="stat-summary" style="display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>#</th><th>Date & Time</th><th>Type</th><th>To / From</th><th>Account</th><th>Status</th><th>Amount</th></tr></thead>
+        <tbody id="txn-tbody"><tr><td colspan="7" style="text-align:center;padding:40px;color:#9ca3af">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+
+const u=JSON.parse(localStorage.getItem('be_user')||'{}');
+if(!u.id&&!u.username){window.location.href='/login.html'}
+document.getElementById('sb-name').textContent=u.full_name||u.username||'User';
+document.getElementById('sb-role').textContent=u.role||'user';
+document.getElementById('sb-avatar').textContent=(u.full_name||u.username||'U')[0].toUpperCase();
+if(u.profile_image){const img=document.createElement('img');img.src=u.profile_image;document.getElementById('sb-avatar').innerHTML='';document.getElementById('sb-avatar').appendChild(img)}
+async function logout(){await fetch('/api/logout',{method:'POST',credentials:'include'}).catch(()=>{});localStorage.removeItem('be_user');window.location.href='/login.html'}
+
+let allTxns=[];
+async function loadTxns(){
+  try{
+    const res=await fetch('/api/transactions',{credentials:'include'});
+    const d=await res.json();
+    allTxns=d.transactions||[];filter();renderSummary();
+  }catch(e){document.getElementById('txn-tbody').innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:#9ca3af">Error loading</td></tr>';}
+}
+function renderSummary(){
+  const credits=allTxns.filter(t=>t.type==='credit');
+  const debits=allTxns.filter(t=>t.type!=='credit');
+  const totalCr=credits.reduce((a,t)=>a+t.amount,0);
+  const totalDb=debits.reduce((a,t)=>a+t.amount,0);
+  document.getElementById('stat-summary').innerHTML=`
+    <div class="card-sm" style="flex:1;min-width:140px"><div style="font-size:.75rem;color:#9ca3af;margin-bottom:4px">TOTAL CREDITED</div><div style="font-size:1.3rem;font-weight:800;color:var(--ok)">+₹${totalCr.toLocaleString('en-IN')}</div></div>
+    <div class="card-sm" style="flex:1;min-width:140px"><div style="font-size:.75rem;color:#9ca3af;margin-bottom:4px">TOTAL DEBITED</div><div style="font-size:1.3rem;font-weight:800;color:var(--err)">-₹${totalDb.toLocaleString('en-IN')}</div></div>
+    <div class="card-sm" style="flex:1;min-width:140px"><div style="font-size:.75rem;color:#9ca3af;margin-bottom:4px">TRANSACTIONS</div><div style="font-size:1.3rem;font-weight:800;color:var(--dk)">${allTxns.length}</div></div>`;
+}
+function filter(){
+  let txns=[...allTxns];
+  const type=document.getElementById('f-type').value;
+  const from=document.getElementById('f-from').value;
+  const to=document.getElementById('f-to').value;
+  const search=document.getElementById('f-search').value.toLowerCase();
+  if(type)txns=txns.filter(t=>t.type===type);
+  if(from)txns=txns.filter(t=>t.created_at>=from);
+  if(to)txns=txns.filter(t=>t.created_at<=to+' 23:59:59');
+  if(search)txns=txns.filter(t=>(t.recipient_name||'').toLowerCase().includes(search)||(t.recipient_account||'').toLowerCase().includes(search));
+  const tbody=document.getElementById('txn-tbody');
+  if(!txns.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;padding:40px;color:#9ca3af">No transactions found</td></tr>';return;}
+  tbody.innerHTML=txns.map((t,i)=>{
+    const cr=t.type==='credit';
+    return `<tr class="${cr?'cr':'db'}-row">
+      <td style="color:#9ca3af;font-size:.8rem">#${t.id}</td>
+      <td style="font-size:.82rem">${t.created_at||'—'}</td>
+      <td><span class="badge ${cr?'badge-ok':'badge-err'}">${cr?'Credit':'Debit'}</span></td>
+      <td>${t.recipient_name||'—'}</td>
+      <td style="font-size:.82rem;color:#9ca3af">${t.recipient_account||'—'}</td>
+      <td><span class="badge badge-ok">${t.status}</span></td>
+      <td>${cr?'+':'-'}₹${Number(t.amount).toLocaleString('en-IN',{minimumFractionDigits:2})}</td>
+    </tr>`;
+  }).join('');
+}
+function exportCSV(){
+  const rows=[['ID','Date','Type','Name','Account','Status','Amount'],...allTxns.map(t=>[t.id,t.created_at,t.type,t.recipient_name,t.recipient_account,t.status,(t.type==='credit'?'+':'-')+t.amount])];
+  const csv=rows.map(r=>r.map(v=>`"${v||''}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv,'+encodeURIComponent(csv);a.download='bankease_statement.csv';a.click();
+}
+loadTxns();
+</script>
+</body>
+</html>
