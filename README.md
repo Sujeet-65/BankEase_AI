@@ -13,14 +13,19 @@ BankEase AI is a full-stack smart banking web application built to make daily ba
 
 ## 🚀 Features at a Glance
 
-| 🔐 Secure Login    | OTP-based login with email verification — no plain password access 
-| 💸 Money Transfer  | PIN-verified transfers with optional camera photo for proof 
-| 🤖 AI Chatbot      | Gemini-powered assistant — replies in your language (Hindi, English, Hinglish) 
-| 🎫 Support System  | Raise tickets for loans, disputes, KYC, freezes — not just basic queries 
-| 📅 Manager Meeting | User requests help → manager schedules a real appointment from the app 
-| 🛡️ Fraud Detection | Rule-based engine that flags risky transactions automatically 
-| 🧑‍💼 Manager Panel   | Review users, add money, freeze accounts, handle fraud alerts 
+🔐 **Secure Login** — OTP sent to registered email, verified before access is granted
 
+💸 **Money Transfer** — PIN-protected transfers with optional camera capture for proof
+
+🤖 **AI Chatbot** — Gemini-powered, replies in your language (Hindi, English, Hinglish)
+
+🎫 **Support & Escalation** — Raise tickets for loans, disputes, KYC, account problems
+
+📅 **Manager Appointment** — User describes issue, manager schedules a meeting from the app
+
+🛡️ Fraud Detection — Flags suspicious transactions based on amount, timing, and behavior
+
+🧑‍💼 **Manager Panel** — User management, fund addition, account freeze, fraud review
 ---
 
 ## 🆚 Why BankEase even when apps already exist?
